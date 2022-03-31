@@ -3,8 +3,9 @@
     include "../auth/login.php";
     include "../utils/validation.php";
     include "../utils/commonResponses.php";
+    include '../utils/headerConfig.php';
 
-    header("Content-Type: application/json; charset=utf-8");
+    setHeaders();
 
     // Obter utilizadores dos ficheiros
     $USERS_FILE_PATH = "../files/users.json";
