@@ -1,0 +1,14 @@
+[
+  {
+    "id": 1,
+    "primNome": "Iúri",
+    "ultNome": "Raimundo",
+    "rfid": "12345"
+  },
+  {
+    "id": 2,
+    "primNome": "Afonso",
+    "ultNome": "Antunes",
+    "rfid": "12346"
+  }
+]

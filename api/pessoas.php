@@ -1,18 +1,14 @@
 <?php
 
     include '../utils/requestConfig.php';
+    include '../pessoas/getPeople.php';
 
-    requestConfig();
-
-    $PEOPLE_FILE_PATH = "../files/pessoas.json";
-    $people_json_string = file_get_contents($PEOPLE_FILE_PATH);
-    $people = json_decode($people_json_string, true);
-
+    requestConfig("GET, POST, PUT, DELETE");
 
     switch ($_SERVER['REQUEST_METHOD']) {
             case 'GET':
-                http_response_code(200);
-                echo $people_json_string;
+                getPeople();
+
                 break;
             case 'POST':
                 break;
