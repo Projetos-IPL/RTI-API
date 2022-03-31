@@ -7,6 +7,10 @@
 
     requestConfig();
 
+    if ($_SERVER['REQUEST_METHOD'] != 'POST') {
+        methodNotSupported($_SERVER['REQUEST_METHOD']);
+    }
+
     // Obter utilizadores dos ficheiros
     $USERS_FILE_PATH = "../files/users.json";
     $users_json_string = file_get_contents($USERS_FILE_PATH);

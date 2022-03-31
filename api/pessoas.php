@@ -2,11 +2,12 @@
 
     include '../utils/requestConfig.php';
 
+    requestConfig();
+
     $PEOPLE_FILE_PATH = "../files/pessoas.json";
     $people_json_string = file_get_contents($PEOPLE_FILE_PATH);
     $people = json_decode($people_json_string, true);
 
-    requestConfig();
 
     switch ($_SERVER['REQUEST_METHOD']) {
             case 'GET':
