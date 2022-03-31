@@ -2,12 +2,8 @@
 
     include 'preflightHandler.php';
 
-    function requestConfig() {
-        header('Access-Control-Allow-Methods: GET, POST, OPTIONS, PUT, DELETE');
-        header('Access-Control-Allow-Headers: *');
-        header('Access-Control-Allow-Origin: *');
-        header('Access-Control-Max-Age: 3600');
-        preflightHandler(); // CORS
+    function requestConfig($allowed_methods) {
+        preflightHandler($allowed_methods); // CORS
         header("Content-Type: application/json; charset=utf-8");
     }
 

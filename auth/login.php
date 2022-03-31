@@ -5,7 +5,7 @@
         if ($user["username"] == $username && $user["password"] == $password) {
             http_response_code(200);
             echo json_encode(array(
-                "message" => "Sucesso",
+                "username" => $username,
                 "token" => "futuro token"
             ));
             exit();
