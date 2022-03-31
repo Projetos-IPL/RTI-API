@@ -8,7 +8,6 @@
     switch ($_SERVER['REQUEST_METHOD']) {
             case 'GET':
                 getPeople();
-
                 break;
             case 'POST':
                 break;
