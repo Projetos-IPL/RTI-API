@@ -1,6 +1,6 @@
 <?php
 
-    include './preflightHandler.php';
+    include 'preflightHandler.php';
 
     function requestConfig() {
         header('Access-Control-Allow-Origin: *');
