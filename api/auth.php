@@ -5,7 +5,7 @@
     include "../utils/commonResponses.php";
     include '../utils/requestConfig.php';
 
-    requestConfig("POST");
+    requestConfig(array("POST"));
 
     if ($_SERVER['REQUEST_METHOD'] != 'POST') {
         methodNotSupported($_SERVER['REQUEST_METHOD']);
