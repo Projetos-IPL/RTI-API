@@ -1,18 +1,7 @@
 <?php
 
-    include '../utils/requestConfig.php';
-    include '../pessoas/getPeople.php';
+    include '../pessoas/PersonController.php';
 
-    requestConfig(array("GET", "POST", "PUT", "DELETE"));
+    PersonController::handleRequest();
 
-    switch ($_SERVER['REQUEST_METHOD']) {
-            case 'GET':
-                getPeople();
-                break;
-            case 'POST':
-                break;
-            case 'PUT':
-                break;
-            case 'DELETE':
-                break;
-    }
+

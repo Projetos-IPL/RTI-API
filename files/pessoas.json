@@ -1,14 +1,1 @@
-[
-  {
-    "id": 1,
-    "primNome": "Iúri",
-    "ultNome": "Raimundo",
-    "rfid": "12345"
-  },
-  {
-    "id": 2,
-    "primNome": "Afonso",
-    "ultNome": "Antunes",
-    "rfid": "12346"
-  }
-]
+[{"id":1,"primNome":"I\u00fari","ultNome":"Raimundo","rfid":"12345"},{"id":2,"primNome":"Afonso","ultNome":"Antunes","rfid":"12346"},{"primNome":"t","ultNome":"t2","rfid":1234},{"primNome":"bom dia","ultNome":"t2","rfid":123456},{"primNome":"bom dia","ultNome":"manuel","rfid":12},{"primNome":"bom dia","ultNome":"manuel","rfid":123},{"primNome":"Micael","ultNome":"Santos","rfid":123345690}]
