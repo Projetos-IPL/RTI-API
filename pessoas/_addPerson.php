@@ -11,7 +11,7 @@
         // Confirmar unicidade do rfid, lançar exceção se for repetido
         foreach($people as $p) {
             if ($PERSON["rfid"] == $p["rfid"]) {
-                throw new RFIDException("Já existe uma pessoa associada a esse rfid.");
+                throw new DupulicateRFIDException("Já existe uma pessoa associada a esse rfid.");
             }
         }
 

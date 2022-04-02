@@ -45,7 +45,7 @@
         private static function postHandler() {
             // Obter corpo do pedido e validar schema
             $person = json_decode(file_get_contents('php://input'), true);
-            if (!self::validateSchema($person)) {
+            if (!self::validatePersonSchema($person)) {
                 wrongFormatResponse();
             };
 
@@ -53,7 +53,7 @@
             try {
                 _addPerson($person);
                 objectWrittenSuccessfullyResponse($person);
-            } catch (RFIDException $e) {
+            } catch (DupulicateRFIDException $e) {
                 unprocessableEntityResponse($e->getMessage());
             } catch (FileWriteException | FileReadException $e) {
                 internalErrorResponse($e->getMessage());
@@ -75,7 +75,7 @@
             }
         }
 
-        public static function validateSchema($person) {
+        public static function validatePersonSchema($person) {
             if ($person == null) return false;
             if (count($person) != 3) return false;
             if (!isset($person["primNome"]) || !isset($person["ultNome"]) || !isset($person["rfid"])) {

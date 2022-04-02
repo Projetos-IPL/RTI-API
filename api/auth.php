@@ -16,7 +16,6 @@
     $users_json_string = file_get_contents($USERS_FILE_PATH);
     $users = json_decode($users_json_string, true);
 
-    var_dump(file_get_contents('php://input'));
     // Obter corpo do pedido e validar
     $req_body = json_decode(file_get_contents('php://input'), true);
 
