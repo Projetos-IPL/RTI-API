@@ -1,7 +1,7 @@
 <?php
 
-    include 'exceptions/RFIDException.php';
-    include '_constants.php';
+    include_once 'exceptions/DupulicateRFIDException.php';
+    include_once '_constants.php';
 
     function _addPerson($PERSON) {
         // Obter pessoas do ficheiro

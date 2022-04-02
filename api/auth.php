@@ -5,6 +5,7 @@
     include "../utils/commonResponses.php";
     include '../utils/requestConfig.php';
 
+    // TODO Refactor insto Abstract Class
     requestConfig(array("POST"));
 
     if ($_SERVER['REQUEST_METHOD'] != 'POST') {
