@@ -21,16 +21,25 @@
     function successfulDataFetchResponse($fetchedData) {
         http_response_code(200);
         echo $fetchedData;
+        exit();
     }
 
     function objectWrittenSuccessfullyResponse($object) {
         http_response_code(200);
         echo json_encode($object);
+        exit();
+    }
+
+    function objectDeletedSuccessfullyResponse($object) {
+        http_response_code(200);
+        echo json_encode($object);
+        exit();
     }
 
     function unprocessableEntityResponse($message) {
         http_response_code(422);
         echo json_encode(array("message" => $message));
+        exit();
     }
 
 
