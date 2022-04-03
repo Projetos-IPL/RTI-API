@@ -10,9 +10,7 @@
         private static array $REQ_BODY;
 
         public static function handleRequest() {
-
             requestConfig();
-
             self::$REQ_BODY = json_decode(file_get_contents('php://input'), true) ?: array();
 
             switch ($_SERVER['REQUEST_METHOD']) {
@@ -47,6 +45,7 @@
         private static function postHandler() {
             if (!self::validatePostRequest(self::$REQ_BODY)) {
                 wrongFormatResponse();
+                return;
             };
 
             // Tentar adicionar pessoa
@@ -63,6 +62,7 @@
         private static function putHandler() {
             if (!self::validatePutRequest(self::$REQ_BODY)) {
                 wrongFormatResponse();
+                return;
             }
 
             // Tentar atualizar pessoa e responder com o resultado
@@ -79,6 +79,7 @@
         private static function deleteHandler() {
             if (!self::validateDeleteRequest(self::$REQ_BODY)) {
                 wrongFormatResponse();
+                return;
             }
 
             // Tentar apagar pessoa e responder com o resultado
