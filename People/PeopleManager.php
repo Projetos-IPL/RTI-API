@@ -23,7 +23,7 @@
             $file_contents = file_get_contents(self::PEOPLE_FILE_PATH);
             $peopleArr = json_decode($file_contents, true);
 
-            if (!$peopleArr) {
+            if ($peopleArr === null) {
                 throw new FileReadException(self::PEOPLE_FILE_NAME);
             }
 
