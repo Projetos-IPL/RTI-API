@@ -62,7 +62,7 @@
          * @throws PersonNotFoundException
          * @throws FileWriteException
          */
-        public static function updatePerson(int $rfid, array $newPersonData) {
+        public static function updatePerson(string $rfid, array $newPersonData) {
             $personIndex = PeopleUtils::getPersonIndex($rfid);
 
             // Validar esquema da pessoa
@@ -97,7 +97,7 @@
          * @throws FileWriteException
          * @throws FileReadException
          */
-        public static function deletePerson($rfid) {
+        public static function deletePerson(string $rfid) {
             $index = PeopleUtils::getPersonIndex($rfid);
             $peopleArr = self::getPeople();
             unset($peopleArr[$index]); // Eliminar pessoa do array peopleArr;

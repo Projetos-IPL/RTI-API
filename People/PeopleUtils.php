@@ -5,6 +5,10 @@
 
     abstract class PeopleUtils {
 
+        /**
+         * @param array $person
+         * @return bool
+         */
         public static function validatePersonArray(array $person): bool
         {
             if (count($person) != 3) return false;
@@ -19,7 +23,7 @@
          * @throws FileReadException
          * @throws PersonNotFoundException
          */
-        public static function getPersonIndex(int $rfid): int
+        public static function getPersonIndex(string $rfid): int
         {
             $peopleArr = PeopleManager::getPeople();
             $index = -1;
@@ -39,7 +43,7 @@
         }
 
         /**
-         * @param int $rfid rfid a ser validado
+         * @param rfid $rfid rfid a ser validado
          * @return bool True se RFID for válido, False se não.
          * @throws FileReadException
          */
