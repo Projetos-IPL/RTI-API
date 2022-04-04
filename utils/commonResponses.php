@@ -2,12 +2,12 @@
 
     function wrongFormatResponse() {
         http_response_code(400);
-        echo json_encode(array("message" => "Request body not properly defined."));
+        echo json_encode(array("message" => "Corpo do pedido mal estruturado."));
     }
 
     function methodNotAvailable($method) {
         http_response_code(400);
-        echo json_encode(array("message" => $method . " is not available in this endpoint."));
+        echo json_encode(array("message" => $method . " não está disponível neste endpoint"));
     }
 
 

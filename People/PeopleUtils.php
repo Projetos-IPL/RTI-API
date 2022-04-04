@@ -43,7 +43,7 @@
          * @return bool True se RFID for válido, False se não.
          * @throws FileReadException
          */
-        public static function validateNewRFID(int $rfid): bool
+        public static function validateNewRFID(string $rfid): bool
         {
             try {
                 self::getPersonIndex($rfid);
