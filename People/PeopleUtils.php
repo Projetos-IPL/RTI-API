@@ -1,7 +1,7 @@
 <?php
 
-    include_once 'PeopleManager.php';
-    include_once 'exceptions/PersonNotFoundException.php';
+    include_once $_SERVER['DOCUMENT_ROOT'].'/People/PeopleManager.php';
+    include_once $_SERVER['DOCUMENT_ROOT'].'/People/exceptions/PersonNotFoundException.php';
 
     abstract class PeopleUtils {
 

@@ -1,7 +1,7 @@
 <?php
 
-    include_once '../utils/commonResponses.php';
-    include_once '../utils/requestConfig.php';
+    include_once $_SERVER['DOCUMENT_ROOT'].'/utils/commonResponses.php';
+    include_once $_SERVER['DOCUMENT_ROOT'].'/utils/requestConfig.php';
 
     include_once 'PeopleManager.php';
 

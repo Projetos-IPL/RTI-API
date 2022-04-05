@@ -1,8 +1,8 @@
 <?php
 
-    include_once 'UserManager.php';
-    include_once 'exceptions/UserNotFoundException.php';
-    include_once 'exceptions/WrongCredentialsException.php';
+    include_once $_SERVER['DOCUMENT_ROOT'].'/Auth/UserManager.php';
+    include_once $_SERVER['DOCUMENT_ROOT'].'/Auth/exceptions/UserNotFoundException.php';
+    include_once $_SERVER['DOCUMENT_ROOT'].'/Auth/exceptions/WrongCredentialsException.php';
 
     abstract class AuthUtils {
 

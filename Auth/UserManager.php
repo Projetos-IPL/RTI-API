@@ -1,7 +1,7 @@
 <?php
 
-    include_once '../utils/constants.php';
-    include_once '../utils/exceptions/FileReadException.php';
+    include_once $_SERVER['DOCUMENT_ROOT'].'/utils/constants.php';
+    include_once $_SERVER['DOCUMENT_ROOT'].'/utils/exceptions/FileReadException.php';
 
     abstract class UserManager {
 

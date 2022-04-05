@@ -1,5 +1,5 @@
 <?php
 
-    include_once '../Permissions/PermissionsController.php';
+    include_once $_SERVER['DOCUMENT_ROOT'].'/Permissions/PermissionsController.php';
 
     PermissionsController::handleRequest();
