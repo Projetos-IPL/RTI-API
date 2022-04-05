@@ -46,7 +46,7 @@
             if (!self::validatePostRequest(self::$REQ_BODY)) {
                 wrongFormatResponse();
                 return;
-            };
+            }
 
             // Tentar adicionar pessoa
             try {
@@ -95,7 +95,7 @@
 
         private static function validatePostRequest(array $req_body): bool
         {
-            if (!PeopleUtils::validatePersonArray($req_body)) {
+            if (!PeopleUtils::validatePersonSchema($req_body)) {
                 return false;
             }
            return true;
@@ -106,13 +106,13 @@
             if (!isset($req_body["rfid"]) || !isset($req_body["data"])) {
                 return false;
             }
-            if (!PeopleUtils::validatePersonArray($req_body["data"])) {
+            if (!PeopleUtils::validatePersonSchema($req_body["data"])) {
                 return false;
             }
             return true;
         }
 
-        private static function validateDeleteRequest(array $req_body):bool
+        private static function validateDeleteRequest(array $req_body): bool
         {
             if (!isset($req_body["rfid"])) {
                 return false;

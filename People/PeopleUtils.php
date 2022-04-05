@@ -9,7 +9,7 @@
          * @param array $person
          * @return bool
          */
-        public static function validatePersonArray(array $person): bool
+        public static function validatePersonSchema(array $person): bool
         {
             if (count($person) != 3) return false;
             if (!isset($person["primNome"]) || !isset($person["ultNome"]) || !isset($person["rfid"])) {

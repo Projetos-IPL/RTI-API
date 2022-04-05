@@ -39,7 +39,7 @@
         public static function addPerson(array $person) {
 
             // Validar esquema da pessoa
-            if (!PeopleUtils::validatePersonArray($person)) {
+            if (!PeopleUtils::validatePersonSchema($person)) {
                 throw new DataSchemaException("Tentativa de adicionar pessoa com esquema incorreto.");
             }
 
@@ -66,7 +66,7 @@
             $personIndex = PeopleUtils::getPersonIndex($rfid);
 
             // Validar esquema da pessoa
-            if (!PeopleUtils::validatePersonArray($newPersonData)) {
+            if (!PeopleUtils::validatePersonSchema($newPersonData)) {
                 throw new DataSchemaException("Tentativa de atualizar pessoa com um esquema incorreto.");
             }
 
@@ -101,6 +101,12 @@
             $index = PeopleUtils::getPersonIndex($rfid);
             $peopleArr = self::getPeople();
             unset($peopleArr[$index]); // Eliminar pessoa do array peopleArr;
+
+            // Apagar permissões associadas à pessoa
+            try {
+                PermissionsManager::deletePermission($rfid);
+            } catch (PermissionNotFoundException) {}
+
             self::overwritePeopleFile($peopleArr);
         }
 
@@ -111,7 +117,7 @@
         private static function overwritePeopleFile(array $peopleArr) {
             // Validar integridade dos dados
             foreach ($peopleArr as $person) {
-                if (!PeopleUtils::validatePersonArray($person)) {
+                if (!PeopleUtils::validatePersonSchema($person)) {
                     throw new DataSchemaException("Esquema das pessoas corrupto, não foram efetuadas alterações.");
                 }
             }
