@@ -87,6 +87,11 @@
                 throw new NameUpdateException($rfid);
             }
 
+            // Atualizar permissões associadas à pessoa
+            try {
+                PermissionsManager::updatePermission($rfid, $newPersonData['rfid']);
+            } catch (PermissionNotFoundException) {}
+
             // Guardar alterações
             $peopleArr[$personIndex] = $newPersonData;
             self::overwritePeopleFile($peopleArr);
