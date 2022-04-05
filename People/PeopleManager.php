@@ -5,6 +5,8 @@
     include_once $_SERVER['DOCUMENT_ROOT'].'/utils/exceptions/FileReadException.php';
     include_once $_SERVER['DOCUMENT_ROOT'].'/utils/exceptions/FileWriteException.php';
 
+    include_once $_SERVER['DOCUMENT_ROOT'].'/Permissions/PermissionsManager.php';
+
     include_once 'exceptions/DuplicateRFIDException.php';
     include_once 'PeopleUtils.php';
 
