@@ -69,6 +69,18 @@
 
         /**
          * @throws DataSchemaException
+         * @throws FileReadException
+         * @throws PermissionNotFoundException
+         */
+        public static function updatePermission(string $rfid, string $newRfid) {
+            $index = PermissionsUtils::getPermissionIndex($rfid);
+            $permissionArr = self::getPermissions();
+            $permissionArr[$index]['rfid'] = $newRfid;
+            self::overwritePermissionsFile($permissionArr);
+        }
+
+        /**
+         * @throws DataSchemaException
          * @throws FileWriteException
          */
         private static function overwritePermissionsFile(array $permissionArr) {
