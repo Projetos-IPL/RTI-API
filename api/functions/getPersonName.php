@@ -18,11 +18,12 @@
     try {
         $peopleArr = PeopleManager::getPeople();
         $index = PeopleUtils::getPersonIndex($req_body['rfid']);
+        $personName = $peopleArr[$index]["primNome"] . " " . $peopleArr[$index]["ultNome"];
 
         http_response_code(200);
         echo json_encode(
             array(
-                'name'=> $peopleArr[$index]["primNome"] . " " . $peopleArr[$index]["ultNome"]
+                'name'=> $personName
             )
         );
     } catch (PersonNotFoundException $e) {
