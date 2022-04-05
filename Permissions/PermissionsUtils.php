@@ -1,7 +1,7 @@
 <?php
 
-    include_once '../People/PeopleUtils.php';
-    include_once 'exceptions/PermissionNotFoundException.php';
+    include_once $_SERVER['DOCUMENT_ROOT'].'/People/PeopleUtils.php';
+    include_once $_SERVER['DOCUMENT_ROOT'].'/Permissions/exceptions/PermissionNotFoundException.php';
 
     abstract class PermissionsUtils {
 

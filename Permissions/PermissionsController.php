@@ -1,10 +1,9 @@
 <?php
 
-    include_once '../utils/Controller.php';
-    include_once '../utils/commonResponses.php';
-    include_once '../utils/requestConfig.php';
-
-    include_once 'PermissionsManager.php';
+    include_once $_SERVER['DOCUMENT_ROOT'].'/utils/Controller.php';
+    include_once $_SERVER['DOCUMENT_ROOT'].'/utils/commonResponses.php';
+    include_once $_SERVER['DOCUMENT_ROOT'].'/utils/requestConfig.php';
+    include_once $_SERVER['DOCUMENT_ROOT'].'/Permissions/PermissionsManager.php';
 
 
     abstract class PermissionsController extends Controller {
