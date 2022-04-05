@@ -1,7 +1,7 @@
 <?php
 
-    include '../People/PersonController.php';
+    include_once '../People/PeopleController.php';
 
-    PersonController::handleRequest();
+    PeopleController::handleRequest();
 
 

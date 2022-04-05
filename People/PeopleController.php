@@ -5,7 +5,7 @@
 
     include_once 'PeopleManager.php';
 
-    abstract class PersonController {
+    abstract class PeopleController {
 
         private static array $REQ_BODY;
 
