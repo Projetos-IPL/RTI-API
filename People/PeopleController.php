@@ -3,6 +3,14 @@
     include_once $_SERVER['DOCUMENT_ROOT'].'/utils/commonResponses.php';
     include_once $_SERVER['DOCUMENT_ROOT'].'/utils/requestConfig.php';
 
+    include_once $_SERVER['DOCUMENT_ROOT'].'/utils/exceptions/FileWriteException.php';
+    include_once $_SERVER['DOCUMENT_ROOT'].'/utils/exceptions/FileReadException.php';
+    include_once $_SERVER['DOCUMENT_ROOT'].'/utils/exceptions/DataSchemaException.php';
+
+    include_once $_SERVER['DOCUMENT_ROOT'].'/People/exceptions/PersonNotFoundException.php';
+    include_once $_SERVER['DOCUMENT_ROOT'].'/People/exceptions/DuplicateRFIDException.php';
+    include_once $_SERVER['DOCUMENT_ROOT'].'/People/exceptions/NameUpdateException.php';
+
     include_once 'PeopleManager.php';
 
     abstract class PeopleController {
