@@ -5,6 +5,8 @@
     include_once $_SERVER['DOCUMENT_ROOT'].'/utils/commonResponses.php';
     include_once $_SERVER['DOCUMENT_ROOT'].'/utils/requestConfig.php';
 
+    include_once $_SERVER['DOCUMENT_ROOT'].'/Records/RecordsManager.php';
+
     abstract class RecordsController extends Controller {
 
         public static function handleRequest() {
@@ -30,6 +32,16 @@
             } catch (FileWriteException $e) {
                 internalErrorResponse($e->getMessage());
             }
+        }
+
+        public static function postHandler() {
+            if (!self::validatePostRequest(self::$REQ_BODY)) {
+                wrongFormatResponse();
+                return;
+            }
+
+            // Tentar adicionar registo
+
         }
 
 
