@@ -7,6 +7,8 @@
 
     include_once $_SERVER['DOCUMENT_ROOT'].'/Permissions/PermissionsManager.php';
 
+    include_once $_SERVER['DOCUMENT_ROOT'].'/EntranceRecords/EntranceRecordsManager.php';
+
     include_once $_SERVER['DOCUMENT_ROOT'].'/People/exceptions/DuplicateRFIDException.php';
     include_once $_SERVER['DOCUMENT_ROOT'].'/People/PeopleUtils.php';
 
@@ -92,6 +94,9 @@
                 PermissionsManager::updatePermission($rfid, $newPersonData['rfid']);
             } catch (PermissionNotFoundException) {}
 
+            // Atualizar registos de entrada associados à pessoa
+            EntranceRecordsManager::updateEntranceRecordsRFID($rfid, $newPersonData['rfid']);
+
             // Guardar alterações
             $peopleArr[$personIndex] = $newPersonData;
             self::overwritePeopleFile($peopleArr);
@@ -113,6 +118,9 @@
             try {
                 PermissionsManager::deletePermission($rfid);
             } catch (PermissionNotFoundException) {}
+
+            // Apagar registos associados à pessoa
+            EntranceRecordsManager::deleteEntranceRecords($rfid);
 
             self::overwritePeopleFile($peopleArr);
         }

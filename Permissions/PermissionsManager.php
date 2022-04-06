@@ -35,7 +35,7 @@
          * @throws FileWriteException
          * @throws PersonNotFoundException
          */
-        public static function addPermission(string $rfid) : int
+        public static function addPermission(string $rfid): int
         {
 
             // Validar nova permissão
@@ -84,7 +84,7 @@
          * @throws FileWriteException
          */
         private static function overwritePermissionsFile(array $permissionArr) {
-            // Validar integirdade dos dados
+            // Validar integridade dos dados
             foreach ($permissionArr as $permission) {
                 if (!PermissionsUtils::validatePermissionSchema($permission)) {
                     throw new DataSchemaException("Esquema das permissões corrupto, as alterações não foram efetuadas.");
@@ -93,7 +93,7 @@
             // Armazenar
             $encodedArray = json_encode(array_values($permissionArr));
             if (!file_put_contents(self::PERMISSIONS_FILE_PATH, $encodedArray)) {
-                throw new FileWriteException();
+                throw new FileWriteException(self::PERMISSIONS_FILE_NAME);
             }
         }
 
