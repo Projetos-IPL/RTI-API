@@ -3,18 +3,18 @@
     "id": 1,
     "rfid": 12,
     "timestamp": 1649262935802,
-    "acess": true
+    "access": true
   },
   {
     "id": 2,
     "rfid": 1234,
     "timestamp": 1649262935902,
-    "acess": false
+    "access": false
   },
   {
     "id": 3,
     "rfid": 12,
     "timestamp": 1649262935802,
-    "acess": true
+    "access": true
   }
 ]
