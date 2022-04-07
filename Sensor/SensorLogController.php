@@ -2,6 +2,8 @@
 
     include_once $_SERVER['DOCUMENT_ROOT'].'/utils/requestConfig.php';
     include_once $_SERVER['DOCUMENT_ROOT'].'/utils/commonResponses.php';
+    include_once $_SERVER['DOCUMENT_ROOT'].'/utils/Controller.php';
+
     include_once $_SERVER['DOCUMENT_ROOT'].'/Sensor/SensorLogManager.php';
 
     abstract class SensorLogController extends Controller {
