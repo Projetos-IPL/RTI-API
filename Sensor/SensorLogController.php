@@ -10,7 +10,7 @@
 
         public static function handleRequest() {
             requestConfig();
-            self::$REQ_BODY = json_decode(file_get_contents('php://input'));
+            self::$REQ_BODY = json_decode(file_get_contents('php://input'), true) ?: array();
 
             switch ($_SERVER['REQUEST_METHOD']) {
                 case GET:
