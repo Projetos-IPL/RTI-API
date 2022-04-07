@@ -6,16 +6,14 @@
     include_once $_SERVER['DOCUMENT_ROOT'].'/Auth/AuthUtils.php';
     include_once $_SERVER['DOCUMENT_ROOT'].'/Auth/UserManager.php';
 
-    abstract class AuthController {
-
-        private static array $REQ_BODY;
+    abstract class AuthController extends Controller {
 
         public static function handleRequest() {
             requestConfig();
             self::$REQ_BODY = json_decode(file_get_contents('php://input'), true) ?: array();
 
             switch ($_SERVER['REQUEST_METHOD']) {
-                case 'POST':
+                case POST:
                     self::postHandler();
                     break;
                 default:

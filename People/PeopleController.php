@@ -2,10 +2,13 @@
 
     include_once $_SERVER['DOCUMENT_ROOT'].'/utils/commonResponses.php';
     include_once $_SERVER['DOCUMENT_ROOT'].'/utils/requestConfig.php';
+    include_once $_SERVER['DOCUMENT_ROOT'].'/utils/constants.php';
+    include_once $_SERVER['DOCUMENT_ROOT'].'/utils/Controller.php';
 
     include_once $_SERVER['DOCUMENT_ROOT'].'/utils/exceptions/FileWriteException.php';
     include_once $_SERVER['DOCUMENT_ROOT'].'/utils/exceptions/FileReadException.php';
     include_once $_SERVER['DOCUMENT_ROOT'].'/utils/exceptions/DataSchemaException.php';
+
 
     include_once $_SERVER['DOCUMENT_ROOT'].'/People/exceptions/PersonNotFoundException.php';
     include_once $_SERVER['DOCUMENT_ROOT'].'/People/exceptions/DuplicateRFIDException.php';
@@ -13,25 +16,24 @@
 
     include_once 'PeopleManager.php';
 
-    abstract class PeopleController {
+    abstract class PeopleController extends Controller {
 
-        private static array $REQ_BODY;
 
         public static function handleRequest() {
             requestConfig();
             self::$REQ_BODY = json_decode(file_get_contents('php://input'), true) ?: array();
 
             switch ($_SERVER['REQUEST_METHOD']) {
-                case 'GET':
+                case GET:
                     self::getHandler();
                     break;
-                case 'POST':
+                case POST:
                     self::postHandler();
                     break;
-                case 'PUT':
+                case PUT:
                     self::putHandler();
                     break;
-                case 'DELETE':
+                case DELETE:
                     self::deleteHandler();
                     break;
                 default:

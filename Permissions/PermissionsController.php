@@ -14,13 +14,13 @@
             self::$REQ_BODY = json_decode(file_get_contents('php://input'), true) ?: array();
 
             switch ($_SERVER['REQUEST_METHOD']) {
-                case 'GET':
+                case GET:
                     self::getHandler();
                     break;
-                case 'POST':
+                case POST:
                     self::postHandler();
                     break;
-                case 'DELETE':
+                case DELETE:
                     self::deleteHandler();
                     break;
                 default:

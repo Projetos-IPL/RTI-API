@@ -8,10 +8,10 @@
 
         /**
          * @param array $user Utilizador
-         * @param $password Password para efetuar login
+         * @param $password string para efetuar login
          * @throws WrongCredentialsException
          */
-        public static function login(array $user, $password) {
+        public static function login(array $user, string $password) {
             if ($user['password'] != $password) {
                 throw new WrongCredentialsException();
             }
