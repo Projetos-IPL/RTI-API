@@ -6,7 +6,7 @@
         public const RFID_READER_NAME = "RFID Reader";
 
         public const TEMPERATURE_READER_ID = 2;
-        public const TEMPERATURE_READER_NAME = "Leitor de Temperatura";
+        public const TEMPERATURE_READER_NAME = "Leitor de temperatura";
 
         public const SMOKE_DETECTOR_ID = 3;
         public const SMOKE_DETECTOR_NAME = "Detetor de fumo";
@@ -14,11 +14,15 @@
         public const CARBON_MONOXIDE_DETECTOR_ID = 4;
         public const CARBON_MONOXIDE_DETECTOR_NAME = "Detetor de monóxido de carbono";
 
+        public const HUMIDITY_READER_ID = 5;
+        public const HUMIDITY_READER_NAME = "Leitor de humidade";
+
         public const ALL_SENSORS = [
             ["id" => self::RFID_READER_ID, "name" => self::RFID_READER_NAME],
             ["id" => self::TEMPERATURE_READER_ID, "name" => self::TEMPERATURE_READER_NAME],
             ["id" => self::SMOKE_DETECTOR_ID, "name" => self::SMOKE_DETECTOR_NAME],
-            ["id" => self::CARBON_MONOXIDE_DETECTOR_ID, "name" => self::CARBON_MONOXIDE_DETECTOR_NAME]
+            ["id" => self::CARBON_MONOXIDE_DETECTOR_ID, "name" => self::CARBON_MONOXIDE_DETECTOR_NAME],
+            ["id" => self::HUMIDITY_READER_ID, "name" => self::HUMIDITY_READER_NAME]
         ];
 
         /** Função para devolver o nome de um sensor através do seu id.

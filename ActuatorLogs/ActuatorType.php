@@ -11,6 +11,7 @@
         public const BUZZER_ID = 3;
         public const BUZZER_NAME = "Buzzer";
 
+
         public const ALL_ACTUATORS = [
             ["id" => self::DOOR_ACTUATOR_ID, "name" => self::DOOR_ACTUATOR_NAME],
             ["id" => self::LED_ID, "name" => self::LED_NAME],
