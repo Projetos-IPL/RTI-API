@@ -6,7 +6,7 @@
     include_once $_SERVER['DOCUMENT_ROOT'].'/utils/requestConfig.php';
     include_once $_SERVER['DOCUMENT_ROOT'].'/utils/Controller.php';
 
-include_once $_SERVER['DOCUMENT_ROOT'] . '/EntranceRecords/EntranceRecordsManager.php';
+    include_once $_SERVER['DOCUMENT_ROOT'] . '/EntranceRecords/EntranceRecordsManager.php';
 
     abstract class EntranceRecordsController extends Controller {
 
