@@ -15,10 +15,10 @@
         public const CARBON_MONOXIDE_DETECTOR_NAME = "Detetor de monóxido de carbono";
 
         public const ALL_SENSORS = [
-            [self::RFID_READER_ID, self::RFID_READER_NAME],
-            [self::TEMPERATURE_READER_ID, self::TEMPERATURE_READER_NAME],
-            [self::SMOKE_DETECTOR_ID, self::SMOKE_DETECTOR_NAME],
-            [self::CARBON_MONOXIDE_DETECTOR_ID, self::CARBON_MONOXIDE_DETECTOR_NAME]
+            ["id" => self::RFID_READER_ID, "name" => self::RFID_READER_NAME],
+            ["id" => self::TEMPERATURE_READER_ID, "name" => self::TEMPERATURE_READER_NAME],
+            ["id" => self::SMOKE_DETECTOR_ID, "name" => self::SMOKE_DETECTOR_NAME],
+            ["id" => self::CARBON_MONOXIDE_DETECTOR_ID, "name" => self::CARBON_MONOXIDE_DETECTOR_NAME]
         ];
 
         /** Função para devolver o nome de um sensor através do seu id.
