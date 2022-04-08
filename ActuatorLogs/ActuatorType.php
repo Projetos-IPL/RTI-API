@@ -10,12 +10,12 @@
 
         public const BUZZER_ID = 3;
         public const BUZZER_NAME = "Buzzer";
-    
+
 
         public const ALL_ACTUATORS = [
-            [self::DOOR_ACTUATOR_ID, self::DOOR_ACTUATOR_NAME],
-            [self::LED_ID, self::LED_NAME],
-            [self::BUZZER_ID, self::BUZZER_NAME]
+            ["id" => self::DOOR_ACTUATOR_ID, "name" => self::DOOR_ACTUATOR_NAME],
+            ["id" => self::LED_ID, "name" => self::LED_NAME],
+            ["id" => self::BUZZER_ID, "name" => self::BUZZER_NAME],
         ];
     
         /** Função para devolver o nome de um atuador através do seu id.
@@ -25,8 +25,8 @@
         public static function getActuatorName(int $id): string
         {
             foreach (self::ALL_ACTUATORS as $actuator) {
-                if ($actuator(0) == $id) {
-                    return $actuator(1);
+                if ($actuator["id"] == $id) {
+                    return $actuator["name"];
                 }
             }
             return "Desconhecido";
