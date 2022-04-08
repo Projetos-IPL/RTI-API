@@ -6,7 +6,7 @@
     abstract class ActuatorLogsManager {
 
         public const SENSOR_LOGS_FILE_LOC = ROOTPATH.'/files/';
-        public const SENSOR_LOGS_FILE_NAME = 'ActuatorLogs.json';
+        public const SENSOR_LOGS_FILE_NAME = 'actuatorLogs.json';
         public const SENSOR_LOGS_FILE_PATH = self::SENSOR_LOGS_FILE_LOC . self::SENSOR_LOGS_FILE_NAME;
 
         /**
