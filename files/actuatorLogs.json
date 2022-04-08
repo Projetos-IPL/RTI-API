@@ -1,22 +1,22 @@
 [
   {
-    "sensorType": 1,
+    "actuatorType": 1,
     "timestamp": 1649350105
   },
   {
-    "sensorType": 2,
+    "actuatorType": 2,
     "timestamp": 1649350125
   },
   {
-    "sensorType": 3,
+    "actuatorType": 3,
     "timestamp": 1649350129
   },
   {
-    "sensorType": 4,
+    "actuatorType": 4,
     "timestamp": 1649350129
   },
   {
-    "sensorType": 5,
+    "actuatorType": 5,
     "timestamp": 1649350129
   }
 ]
