@@ -6,7 +6,7 @@
     abstract class EntranceRecordsManager {
 
         public const ENTRANCE_RECORDS_FILE_LOC = ROOTPATH.'/files/';
-        public const ENTRANCE_RECORDS_FILE_NAME = 'records.json';
+        public const ENTRANCE_RECORDS_FILE_NAME = 'entranceRecords.json';
         public const ENTRANCE_RECORDS_FILE_PATH = self::ENTRANCE_RECORDS_FILE_LOC . self::ENTRANCE_RECORDS_FILE_NAME;
 
         /** Função para obter um array de registos

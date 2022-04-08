@@ -1,1 +1,27 @@
-[{"primNome":"I\u00fari","ultNome":"Raimundo","rfid":12},{"primNome":"Micael","ultNome":"Santos","rfid":123345678},{"primNome":"Micael","ultNome":"Santos","rfid":163},{"primNome":"Vitor","ultNome":"Tavora","rfid":1000},{"primNome":"Vitor","ultNome":"Carlos","rfid":10001}]
+[
+  {
+    "primNome": "I\u00fari",
+    "ultNome": "Raimundo",
+    "rfid": 1000
+  },
+  {
+    "primNome": "Micael",
+    "ultNome": "Santos",
+    "rfid": 1001
+  },
+  {
+    "primNome": "Micael",
+    "ultNome": "Santos",
+    "rfid": 1002
+  },
+  {
+    "primNome": "Vitor",
+    "ultNome": "Tavora",
+    "rfid": 1003
+  },
+  {
+    "primNome": "Vitor",
+    "ultNome": "Carlos",
+    "rfid": 1004
+  }
+]
