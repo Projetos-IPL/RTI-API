@@ -51,7 +51,7 @@
         public static function getEntranceRecordsByRFID(string $rfid): array
         {
             $recordsFound = array();
-            foreach(EntranceRecordsManager::getEntranceRecords() as $key => $record) {
+            foreach(EntranceRecordsManager::getEntranceRecords() as $record) {
                 if ($record['rfid'] === $rfid) {
                     $recordsFound[] = $record;
                 }

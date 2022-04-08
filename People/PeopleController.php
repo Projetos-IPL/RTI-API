@@ -98,7 +98,7 @@
                 objectDeletedSuccessfullyResponse(self::$REQ_BODY);
             } catch (PersonNotFoundException $e) {
                 unprocessableEntityResponse($e->getMessage());
-            } catch (FileReadException | FileWriteException $e) {
+            } catch (DataSchemaException | FileReadException | FileWriteException $e) {
                 internalErrorResponse($e->getMessage());
             }
         }

@@ -43,7 +43,7 @@
         }
 
         /**
-         * @param rfid $rfid rfid a ser validado
+         * @param $rfid string rfid a ser validado
          * @return bool True se RFID for válido, False se não.
          * @throws FileReadException
          */

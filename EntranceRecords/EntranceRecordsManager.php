@@ -1,8 +1,6 @@
 <?php
 
-use JetBrains\PhpStorm\ArrayShape;
-
-include_once $_SERVER['DOCUMENT_ROOT'] . '/EntranceRecords/EntranceRecordsUtils.php';
+    include_once $_SERVER['DOCUMENT_ROOT'] . '/EntranceRecords/EntranceRecordsUtils.php';
     include_once $_SERVER['DOCUMENT_ROOT'] . '/People/PeopleUtils.php';
 
     abstract class EntranceRecordsManager {

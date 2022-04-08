@@ -77,7 +77,7 @@
         private static function validatePostRequest(array $req_body): bool
         {
             if (count($req_body) != 1) return false;
-            if (!isset($req_body["rfid"]) ) return false;
+            if (!isset($req_body["rfid"])) return false;
             return true;
         }
 

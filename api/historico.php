@@ -1,6 +1,6 @@
 <?php
 
-    include_once $_SERVER['DOCUMENT_ROOT'].'/Sensor/SensorLogController.php';
+    include_once $_SERVER['DOCUMENT_ROOT'] . '/SensorLog/SensorLogController.php';
 
     SensorLogController::handleRequest();
 

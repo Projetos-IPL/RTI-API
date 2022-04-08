@@ -71,6 +71,7 @@
          * @throws DataSchemaException
          * @throws FileReadException
          * @throws PermissionNotFoundException
+         * @throws FileWriteException
          */
         public static function updatePermission(string $rfid, string $newRfid) {
             $index = PermissionsUtils::getPermissionIndex($rfid);
