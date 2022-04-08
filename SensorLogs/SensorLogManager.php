@@ -1,7 +1,7 @@
 <?php
 
     include_once $_SERVER['DOCUMENT_ROOT'].'/utils/constants.php';
-    include_once $_SERVER['DOCUMENT_ROOT'] . '/SensorLog/SensorLogUtils.php';
+    include_once $_SERVER['DOCUMENT_ROOT'] . '/SensorLogs/SensorLogUtils.php';
 
     abstract class SensorLogManager {
 
@@ -43,7 +43,7 @@
             // Validar integridade dos dados
             foreach($logArr as $log) {
                 if (!SensorLogUtils::validateSensorLogSchema($log)) {
-                    throw new DataSchemaException("Esquema dos registos de sensor, as alterações não foram efetuadas.");
+                    throw new DataSchemaException("Esquema dos registos de sensor corrupto, as alterações não foram efetuadas.");
                 }
             }
             // Armazenar

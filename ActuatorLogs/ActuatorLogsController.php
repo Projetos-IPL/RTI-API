@@ -1,15 +1,18 @@
 <?php
 
-    include_once $_SERVER['DOCUMENT_ROOT'].'/utils/requestConfig.php';
-    include_once $_SERVER['DOCUMENT_ROOT'].'/utils/commonResponses.php';
-    include_once $_SERVER['DOCUMENT_ROOT'].'/utils/Controller.php';
-    include_once $_SERVER['DOCUMENT_ROOT'].'/utils/constants.php';
 
-    include_once $_SERVER['DOCUMENT_ROOT'] . '/SensorLog/SensorLogManager.php';
+    include_once $_SERVER['DOCUMENT_ROOT'] . '/utils/requestConfig.php';
+    include_once $_SERVER['DOCUMENT_ROOT'] . '/utils/commonResponses.php';
+    include_once $_SERVER['DOCUMENT_ROOT'] . '/utils/Controller.php';
+    include_once $_SERVER['DOCUMENT_ROOT'] . '/utils/constants.php';
 
-    abstract class SensorLogController extends Controller {
+    include_once $_SERVER['DOCUMENT_ROOT'] . '/ActuatorLogs/ActuatorLogsManager.php';
 
-        public static function handleRequest() {
+    abstract class ActuatorLogsController extends Controller
+    {
+
+        public static function handleRequest()
+        {
             requestConfig();
             self::$REQ_BODY = json_decode(file_get_contents('php://input'), true) ?: array();
 
@@ -26,37 +29,40 @@
             }
         }
 
-        public static function getHandler() {
+        public static function getHandler()
+        {
             try {
-                $sensorLogsArr = SensorLogManager::getSensorLogs();
-                $sensorLogsJSONEncoded = json_encode(array_values($sensorLogsArr));
-                successfulDataFetchResponse($sensorLogsJSONEncoded);
+                $ActuatorLogssArr = ActuatorLogsManager::getActuatorLogss();
+                $ActuatorLogssJSONEncoded = json_encode(array_values($ActuatorLogssArr));
+                successfulDataFetchResponse($ActuatorLogssJSONEncoded);
             } catch (FileReadException $e) {
                 internalErrorResponse($e->getMessage());
             }
         }
 
-        private static function postHandler() {
+        private static function postHandler()
+        {
             if (!self::validatePostRequest(self::$REQ_BODY)) {
                 wrongFormatResponse();
                 return;
             }
 
-            // Tentar adicionar registo de sensor
+            // Tentar adicionar registo de atuador
             try {
-                SensorLogManager::addSensorLog(self::$REQ_BODY);
+                ActuatorLogsManager::addActuatorLogs(self::$REQ_BODY);
                 objectWrittenSuccessfullyResponse(self::$REQ_BODY);
-            } catch (DataSchemaException | FileReadException | FileWriteException $e) {
+            } catch (DataSchemaException|FileReadException|FileWriteException $e) {
                 internalErrorResponse($e->getMessage());
             }
         }
 
         private static function validatePostRequest(array $req_body): bool
         {
-            if (!SensorLogUtils::validateSensorLogSchema($req_body)) {
+            if (!ActuatorLogsUtils::validateActuatorLogsSchema($req_body)) {
                 return false;
             }
             return true;
         }
 
     }
+
