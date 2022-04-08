@@ -28,8 +28,8 @@
         public static function getSensorName(int $id): string
         {
             foreach (self::ALL_SENSORS as $sensor) {
-                if ($sensor(0) == $id) {
-                    return $sensor(1);
+                if ($sensor["id"] == $id) {
+                    return $sensor["name"];
                 }
             }
             return "Desconhecido";
