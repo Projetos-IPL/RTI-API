@@ -1,5 +1,8 @@
 <?php
 
+    use Firebase\JWT\JWT;
+    use Firebase\JWT\Key;
+
     include_once $_SERVER['DOCUMENT_ROOT'].'/Auth/UserManager.php';
     include_once $_SERVER['DOCUMENT_ROOT'].'/Auth/exceptions/UserNotFoundException.php';
     include_once $_SERVER['DOCUMENT_ROOT'].'/Auth/exceptions/WrongCredentialsException.php';
@@ -35,6 +38,21 @@
         // TODO Implementar getJWT
         public static function getJWT(string $username): string
         {
-            return 'token';
+            $payload = [
+                'username' => $username,
+                'timestamp' => (new DateTime)->getTimestamp()
+            ];
+
+            return JWT::encode($payload, AuthController::$JWT_KEY, AuthController::$JWT_ALG);
+        }
+
+        public static function verifyJWT(string $jwt) : bool
+        {
+            try {
+                JWT::decode($jwt, new Key(AuthController::$JWT_KEY, AuthController::$JWT_ALG));
+                return true;
+            } catch (Exception) {
+                return false;
+            }
         }
     }
