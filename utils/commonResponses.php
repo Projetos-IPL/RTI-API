@@ -1,8 +1,8 @@
 <?php
 
-    function wrongFormatResponse() {
+    function wrongFormatResponse(string $customMessage = "") {
         http_response_code(400);
-        echo json_encode(array("message" => "Corpo do pedido mal estruturado."));
+        echo json_encode(array("message" => "Corpo do pedido mal estruturado.\n".$customMessage));
     }
 
     function methodNotAvailable($method) {
