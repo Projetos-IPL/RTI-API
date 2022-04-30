@@ -1,5 +1,7 @@
 <?php
 
+    include_once $_SERVER['DOCUMENT_ROOT'].'/vendor/autoload.php';
+
     use Firebase\JWT\JWT;
     use Firebase\JWT\Key;
 
