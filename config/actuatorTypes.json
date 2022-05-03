@@ -1,0 +1,22 @@
+[
+  {
+    "id": 1,
+    "name": "Atuador da porta"
+  },
+  {
+    "id": 2,
+    "name": "LED"
+  },
+  {
+    "id": 3,
+    "name": "Buzzer"
+  },
+  {
+    "id": 4,
+    "name": "Ecrã LCD"
+  },
+  {
+    "id": 5,
+    "name": "Luz de Apoio"
+  }
+]

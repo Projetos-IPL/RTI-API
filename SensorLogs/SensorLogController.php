@@ -56,7 +56,6 @@
         }
 
         private function postHandler() {
-
             // Tentar adicionar registo de sensor
             try {
                 $log = array(

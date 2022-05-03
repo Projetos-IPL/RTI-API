@@ -1,0 +1,22 @@
+[
+  {
+    "id": 1,
+    "name": "RFID Reader"
+  },
+  {
+    "id": 2,
+    "name": "Leitor de temperatura"
+  },
+  {
+    "id": 3,
+    "name": "Detetor de fumo"
+  },
+  {
+    "id": 4,
+    "name": "Detetor de monóxido de carbono"
+  },
+  {
+    "id": 5,
+    "name": "Leitor de humidade"
+  }
+]
