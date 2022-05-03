@@ -1,19 +1,27 @@
 <?php
 
+    include_once $_SERVER['DOCUMENT_ROOT'].'/utils/ControllerUtils.php';
+    include_once $_SERVER['DOCUMENT_ROOT'].'/utils/ControllerUtils.php';
+
     include_once $_SERVER['DOCUMENT_ROOT'].'/utils/exceptions/InvalidTokenException.php';
     include_once $_SERVER['DOCUMENT_ROOT'].'/utils/exceptions/MissingTokenException.php';
+    include_once $_SERVER['DOCUMENT_ROOT'].'/utils/exceptions/MissingRequiredHeadersException.php';
 
     abstract class Controller {
 
         protected array $REQ_BODY;
+        protected array $REQ_HEADERS;
         protected array $AUTHORIZATION_MAP;
         protected array $REQ_BODY_SPEC;
+        protected array $REQ_HEADER_SPEC;
 
-        public function __construct(array $AUTHORIZATION_MAP, array $REQ_BODY_SPEC)
+        public function __construct(array $AUTHORIZATION_MAP, array $REQ_BODY_SPEC, array $REQ_HEADER_SPEC)
         {
             $this->AUTHORIZATION_MAP = $AUTHORIZATION_MAP;
             $this->REQ_BODY_SPEC = $REQ_BODY_SPEC;
+            $this->REQ_HEADER_SPEC = $REQ_HEADER_SPEC;
             $this->REQ_BODY = json_decode(file_get_contents('php://input'), true) ?: array();
+            $this->REQ_HEADERS = ControllerUtils::get_HTTP_request_headers();
         }
 
         /**
@@ -26,19 +34,18 @@
 
             // Validar pedido, no nível de autorizações e formato
             try {
-                self::validateRequest($_SERVER['REQUEST_METHOD']);
-
-                if (!self::validateRequestBody()) {
-                    wrongFormatResponse();
-                    return;
-                }
-
+                self::validateRequest();
             } catch (InvalidTokenException) {
                 notAuthrorizedResponse();
                 return;
             } catch (MissingTokenException) {
-                wrongFormatResponse('Falta token de autenticação');
+                wrongFormatResponse("Falta token de autneticação");
                 return;
+            } catch (InvalidRequestBodyException) {
+                wrongFormatResponse("Corpo do pedido mal formatado");
+                return;
+            } catch (MissingRequiredHeadersException) {
+                wrongFormatResponse("Falta cabeçalhos da especificação do endpoint.");
             }
 
             // Continuar o tratamento do pedido
@@ -47,49 +54,33 @@
 
         /**
          * Função para validar pedidos
-         * @param $REQ_METHOD string Método a ser verificado no AUTHORIZATION_MAP
+         * @param
          * @return void
          * @throws MissingTokenException
          * @throws InvalidTokenException
+         * @throws InvalidRequestBodyException
+         * @throws MissingRequiredHeadersException
          */
-        protected function validateRequest(string $REQ_METHOD) {
-            // Métodos não especificados no AUTHORIZATION_MAP são considerados privados, logo são verificados
-            if (!isset($this->AUTHORIZATION_MAP[$REQ_METHOD]) || !$this->AUTHORIZATION_MAP[$REQ_METHOD]) {
-                if (!isset($this->REQ_BODY['token'])) {
-                    throw new MissingTokenException();
-                }
-                if (!AuthUtils::verifyJWT($this->REQ_BODY['token'])) {
-                    throw new InvalidTokenException();
-                }
+        protected function validateRequest() {
+            $REQ_METHOD = $_SERVER['REQUEST_METHOD'];
+
+            // Validar corpo do pedido
+            if ($REQ_METHOD != GET && !ControllerUtils::validateRequestBody($this->REQ_BODY, $this->REQ_BODY_SPEC[$REQ_METHOD])) {
+                throw new InvalidRequestBodyException();
             }
+
+            // Verificar se os cabeçalhos especificados estão definidos
+            if (!ControllerUtils::validateRequestHeaders($this->REQ_HEADERS, $this->REQ_HEADER_SPEC[$REQ_METHOD])) {
+                throw new MissingRequiredHeadersException();
+            }
+
+            // Fazer autenticação
+            ControllerUtils::authorize($this->AUTHORIZATION_MAP, $this->REQ_HEADERS);
         }
 
         /**
-         * Função para validar o corpo de um pedido
-         * @param array $reqBody Corpo do pedido
-         * @param array $reqBodySpecification Especificação do corpo do pedido
-         * @return bool Verdadeiro se o corpo do pedido respeitar a especificação, falso se não
-         */
-        protected function validateRequestBody() : bool
-        {
-            $valid = true;
-            foreach ($this->REQ_BODY_SPEC[$_SERVER['REQUEST_METHOD']] as $param) {
-                if (!isset($this->REQ_BODY[$param])) {
-                    $valid = false;
-                }
-            }
-            if (count($this->REQ_BODY) != count($this->REQ_BODY_SPEC)) {
-                $valid = false;
-            }
-            return $valid;
-        }
-
-        /**
-         * Função abstrata para fazer o meapeamento do tratamento do pedido consoante o seu método.
+         * Função para fazer o meapeamento do tratamento do pedido consoante o seu método.
          */
         protected abstract function routeRequest();
-
-
-
     }
 

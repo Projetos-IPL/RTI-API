@@ -2,7 +2,8 @@
 
     function wrongFormatResponse(string $customMessage = "") {
         http_response_code(400);
-        echo json_encode(array("message" => "Corpo do pedido mal estruturado.\n".$customMessage));
+        echo json_encode(array(
+            "message" => $customMessage ?: "Corpo do pedido mal estruturado ou falta cabeçalhos.\n"));
     }
 
     function methodNotAvailable($method) {

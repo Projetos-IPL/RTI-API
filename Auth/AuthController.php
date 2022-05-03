@@ -17,12 +17,15 @@
                 POST => true,
             );
 
-            $REQ_BODY_SPEC = array (
-                GET =>  'token',
+            $REQ_BODY_SPEC = array(
                 POST => ['username', 'password']
             );
 
-            parent::__construct($AUTHORIZATION_MAP, $REQ_BODY_SPEC);
+            $REQ_HEADER_SPEC = array(
+                GET => X_AUTH_TOKEN
+            );
+
+            parent::__construct($AUTHORIZATION_MAP, $REQ_BODY_SPEC, $REQ_HEADER_SPEC);
         }
 
         protected function routeRequest() {

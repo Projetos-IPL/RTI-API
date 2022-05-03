@@ -7,3 +7,5 @@
     defined('PUT') or define('PUT', 'PUT');
     defined('DELETE') or define('DELETE', 'DELETE');
 
+    defined('X_AUTH_TOKEN') or define('X_AUTH_TOKEN', 'X-Auth-Token');
+
