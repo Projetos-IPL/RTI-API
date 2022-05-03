@@ -11,6 +11,9 @@
 
     abstract class AuthUtils {
 
+        public static string $JWT_KEY = 'chave_generica';
+        public static string $JWT_ALG = 'HS256';
+
         /**
          * @param array $user Utilizador
          * @param $password string para efetuar login
@@ -45,16 +48,29 @@
                 'timestamp' => (new DateTime)->getTimestamp()
             ];
 
-            return JWT::encode($payload, AuthController::$JWT_KEY, AuthController::$JWT_ALG);
+            return JWT::encode($payload, self::$JWT_KEY, self::$JWT_ALG);
         }
 
         public static function verifyJWT(string $jwt) : bool
         {
             try {
-                JWT::decode($jwt, new Key(AuthController::$JWT_KEY, AuthController::$JWT_ALG));
+                JWT::decode($jwt, new Key(self::$JWT_KEY, self::$JWT_ALG));
                 return true;
             } catch (Exception) {
                 return false;
             }
+        }
+
+        /** Função para descodificar um token
+         * @throws InvalidTokenException
+         */
+        public static function decodeJWT(string $jwt) : array
+        {
+            try {
+                return (array) JWT::decode($jwt, new Key(self::$JWT_KEY, self::$JWT_ALG));
+            } catch (Exception) {
+                throw new InvalidTokenException();
+            }
+
         }
     }

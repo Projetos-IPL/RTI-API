@@ -7,13 +7,27 @@
 
     include_once $_SERVER['DOCUMENT_ROOT'] . '/SensorLogs/SensorLogManager.php';
 
-    abstract class SensorLogController extends Controller {
+    class SensorLogController extends Controller {
 
-        public static function handleRequest() {
-            requestConfig();
-            self::$REQ_BODY = json_decode(file_get_contents('php://input'), true) ?: array();
+        public function __construct() {
+            $AUTHORIZATION_MAP = array(
+                GET => false,
+                POST => true,
+            );
 
-            switch ($_SERVER['REQUEST_METHOD']) {
+            $REQ_BODY_SPEC = array (
+                GET =>  'token',
+                POST => ['token', 'sensorType', 'value', 'timestamp']
+            );
+
+            parent::__construct($AUTHORIZATION_MAP, $REQ_BODY_SPEC);
+        }
+
+        protected function routeRequest()
+        {
+            $reqMethod = $_SERVER['REQUEST_METHOD'];
+
+            switch ($reqMethod) {
                 case GET:
                     self::getHandler();
                     break;
@@ -21,12 +35,12 @@
                     self::postHandler();
                     break;
                 default:
-                    methodNotAvailable($_SERVER['REQUEST_METHOD']);
+                    methodNotAvailable($reqMethod);
                     break;
             }
         }
 
-        public static function getHandler() {
+        public function getHandler() {
             try {
                 $sensorLogsArr = SensorLogManager::getSensorLogs();
                 $sensorLogsJSONEncoded = json_encode(array_values($sensorLogsArr));
@@ -36,27 +50,19 @@
             }
         }
 
-        private static function postHandler() {
-            if (!self::validatePostRequest(self::$REQ_BODY)) {
-                wrongFormatResponse();
-                return;
-            }
+        private function postHandler() {
 
             // Tentar adicionar registo de sensor
             try {
-                SensorLogManager::addSensorLog(self::$REQ_BODY);
-                objectWrittenSuccessfullyResponse(self::$REQ_BODY);
+                $log = array(
+                    'sensorType' => $this->REQ_BODY['sensorType'],
+                    'value' => $this->REQ_BODY['value'],
+                    'timestamp' => $this->REQ_BODY['timestamp']
+                );
+                SensorLogManager::addSensorLog($log);
+                objectWrittenSuccessfullyResponse($log);
             } catch (DataSchemaException | FileReadException | FileWriteException $e) {
                 internalErrorResponse($e->getMessage());
             }
         }
-
-        private static function validatePostRequest(array $req_body): bool
-        {
-            if (!SensorLogUtils::validateSensorLogSchema($req_body)) {
-                return false;
-            }
-            return true;
-        }
-
     }

@@ -11,10 +11,6 @@
 
     class AuthController extends Controller {
 
-        public static string $JWT_KEY = 'chave_generica';
-        public static string $JWT_ALG = 'HS256';
-
-
         public function __construct() {
             $AUTHORIZATION_MAP = array(
                 GET => false,
@@ -31,11 +27,6 @@
 
         protected function routeRequest() {
             $reqMethod = $_SERVER['REQUEST_METHOD'];
-
-            if (!self::validateRequestBody()) {
-                wrongFormatResponse();
-                return;
-            }
 
             switch ($reqMethod) {
                 case GET:

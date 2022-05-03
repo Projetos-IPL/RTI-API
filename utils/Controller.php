@@ -24,13 +24,19 @@
             // Configurar cabeçalhos, tratar do cors
             requestConfig();
 
-            // Validar pedido, no nível de autorizações
+            // Validar pedido, no nível de autorizações e formato
             try {
                 self::validateRequest($_SERVER['REQUEST_METHOD']);
-            } catch (InvalidTokenException $e) {
+
+                if (!self::validateRequestBody()) {
+                    wrongFormatResponse();
+                    return;
+                }
+
+            } catch (InvalidTokenException) {
                 notAuthrorizedResponse();
                 return;
-            } catch (MissingTokenException $e) {
+            } catch (MissingTokenException) {
                 wrongFormatResponse('Falta token de autenticação');
                 return;
             }
