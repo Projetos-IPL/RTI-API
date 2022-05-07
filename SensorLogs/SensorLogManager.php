@@ -1,63 +1,46 @@
 <?php
 
-    include_once $_SERVER['DOCUMENT_ROOT'].'/utils/constants.php';
-    include_once $_SERVER['DOCUMENT_ROOT'] . '/SensorLogs/SensorLogUtils.php';
+include_once $_SERVER['DOCUMENT_ROOT'] . '/utils/constants.php';
 
-    abstract class SensorLogManager {
+class SensorLogManager extends Manager
+{
 
-        public const SENSOR_LOGS_FILE_LOC = ROOTPATH.'/files/';
-        public const SENSOR_LOGS_FILE_NAME = 'sensorLogs.json';
-        public const SENSOR_LOGS_FILE_PATH = self::SENSOR_LOGS_FILE_LOC . self::SENSOR_LOGS_FILE_NAME;
+    public function __construct()
+    {
+        $SENSOR_LOGS_FILE_LOC = ROOTPATH . '/files/';
+        $SENSOR_LOGS_FILE_NAME = 'sensorLogs.json';
+        $SENSOR_LOGS_SCHEMA = array('sensorType', 'value', 'timestamp');
 
-        /** Função para obter os registos de sensor
-         * @throws FileReadException
-         */
-        public static function getSensorLogs(): array
-        {
-            $file_contents = file_get_contents(self::SENSOR_LOGS_FILE_PATH);
-            $permissionsArr = json_decode($file_contents, true);
+        $ALLOWED_OPERATIONS = array(
+            ManagerUtils::READ,
+            ManagerUtils::WRITE,
+        );
 
-            if ($permissionsArr === null) {
-                throw new FileReadException(self::SENSOR_LOGS_FILE_NAME);
-            }
-
-            return $permissionsArr;
-        }
-
-        /** Função para adicionar o registo de sensor
-         * @throws FileReadException
-         * @throws FileWriteException
-         * @throws DataSchemaException
-         */
-        public static function addSensorLog(array $log) {
-            if (!SensorLogUtils::validateSensorLogSchema($log)) {
-                throw new DataSchemaException();
-            }
-
-            $logArr = self::getSensorLogs();
-            $logArr[] = $log;
-            self::overwriteSensorLogFile($logArr);
-        }
-
-        /** Função para sobreescrever o ficheiro de registos de sensor
-         * @throws DataSchemaException
-         * @throws FileWriteException
-         */
-        private static function overwriteSensorLogFile(array $logArr) {
-            // Validar integridade dos dados
-            foreach($logArr as $log) {
-                if (!SensorLogUtils::validateSensorLogSchema($log)) {
-                    throw new DataSchemaException("Esquema dos registos de sensor corrupto, as alterações não foram efetuadas.");
-                }
-            }
-            // Armazenar
-            $encodedArray = json_encode(array_values($logArr));
-            if(!file_put_contents(self::SENSOR_LOGS_FILE_PATH, $encodedArray)) {
-                throw new FileWriteException(self::SENSOR_LOGS_FILE_PATH);
-            }
-        }
-
-
-
-
+        parent::__construct(
+            'SENSOR_LOG',
+            $SENSOR_LOGS_FILE_LOC,
+            $SENSOR_LOGS_FILE_NAME,
+            $SENSOR_LOGS_SCHEMA,
+            $ALLOWED_OPERATIONS);
     }
+
+    /** Função para obter os registos de sensor
+     * @throws FileReadException
+     * @throws OperationNotAllowedException
+     */
+    public function getSensorLogs(): array
+    {
+        return $this->getEntityData();
+    }
+
+    /** Função para adicionar o registo de sensor
+     * @throws FileReadException
+     * @throws FileWriteException
+     * @throws DataSchemaException
+     * @throws OperationNotAllowedException
+     */
+    public function addSensorLog(array $log)
+    {
+        $this->addEntity($log);
+    }
+}
