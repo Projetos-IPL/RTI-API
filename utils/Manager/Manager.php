@@ -52,7 +52,7 @@
          * @return array
          * @throws FileReadException
          */
-        protected function getEntityDataInternal() : array
+        private function getEntityDataInternal() : array
         {
             $file_contents = file_get_contents($this->ENTITY_FILE_PATH);
             $entityArr = json_decode($file_contents, true);

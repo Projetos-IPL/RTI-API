@@ -1,103 +1,106 @@
 <?php
 
-    include_once $_SERVER['DOCUMENT_ROOT'].'/utils/constants.php';
-    include_once $_SERVER['DOCUMENT_ROOT'].'/Permissions/PermissionsUtils.php';
-    include_once $_SERVER['DOCUMENT_ROOT'].'/Permissions/exceptions/DuplicatePermissionException.php';
+include_once $_SERVER['DOCUMENT_ROOT'] . '/utils/constants.php';
+include_once $_SERVER['DOCUMENT_ROOT'] . '/Permissions/PermissionsUtils.php';
+include_once $_SERVER['DOCUMENT_ROOT'] . '/Permissions/exceptions/DuplicatePermissionException.php';
 
-    abstract class PermissionsManager {
+class PermissionsManager extends Manager
+{
 
-        public const PERMISSIONS_FILE_LOC = ROOTPATH.'/files/';
-        public const PERMISSIONS_FILE_NAME = 'permissoes.json';
-        public const PERMISSIONS_FILE_PATH = self::PERMISSIONS_FILE_LOC . self::PERMISSIONS_FILE_NAME;
+    public function __construct()
+    {
+        $PERMISSIONS_FILE_LOC = ROOTPATH . '/files/';
+        $PERMISSIONS_FILE_NAME = 'permissoes.json';
+        $PERMISSIONS_SCHEMA = array('id', 'rfid');
 
-        /**
-         * @return array Associative Array de permissões
-         * @throws FileReadException
-         */
-        public static function getPermissions(): array
-        {
-            $file_contents = file_get_contents(self::PERMISSIONS_FILE_PATH);
-            $permissionsArr = json_decode($file_contents, true);
+        $ALLOWED_OPERATIONS = array(
+            ManagerUtils::READ,
+            ManagerUtils::WRITE,
+            ManagerUtils::DELETE
+        );
 
-            if ($permissionsArr === null) {
-                throw new FileReadException(self::PERMISSIONS_FILE_NAME);
-            }
-
-            return $permissionsArr;
-        }
-
-        /**
-         * @param string $rfid rfid da nova permissão
-         * @return int Id da permissão criada
-         * @throws DuplicatePermissionException
-         * @throws DataSchemaException
-         * @throws FileReadException
-         * @throws FileWriteException
-         * @throws PersonNotFoundException
-         */
-        public static function addPermission(string $rfid): int
-        {
-
-            // Validar nova permissão
-            if (!PermissionsUtils::validateNewPermission($rfid)) {
-                throw new DuplicatePermissionException($rfid);
-            }
-
-            // Obter id para a permissão
-            $id = PermissionsUtils::generateNewId();
-
-            // Adicionar permissão
-            $permissionsArr = self::getPermissions();
-            $permissionsArr[] = array("id"=>$id, "rfid"=>$rfid);
-            self::overwritePermissionsFile($permissionsArr);
-
-            return $id;
-        }
-
-        /**
-         * @throws DataSchemaException
-         * @throws FileWriteException
-         * @throws FileReadException
-         * @throws PermissionNotFoundException
-         */
-        public static function deletePermission(string $rfid) {
-            $index = PermissionsUtils::getPermissionIndex($rfid);
-            $permissionsArr = self::getPermissions();
-            unset($permissionsArr[$index]);
-            self::overwritePermissionsFile($permissionsArr);
-        }
-
-        /**
-         * @throws DataSchemaException
-         * @throws FileReadException
-         * @throws PermissionNotFoundException
-         * @throws FileWriteException
-         */
-        public static function updatePermission(string $rfid, string $newRfid) {
-            $index = PermissionsUtils::getPermissionIndex($rfid);
-            $permissionArr = self::getPermissions();
-            $permissionArr[$index]['rfid'] = $newRfid;
-            self::overwritePermissionsFile($permissionArr);
-        }
-
-        /**
-         * @throws DataSchemaException
-         * @throws FileWriteException
-         */
-        private static function overwritePermissionsFile(array $permissionArr) {
-            // Validar integridade dos dados
-            foreach ($permissionArr as $permission) {
-                if (!PermissionsUtils::validatePermissionSchema($permission)) {
-                    throw new DataSchemaException("Esquema das permissões corrupto, as alterações não foram efetuadas.");
-                }
-            }
-            // Armazenar
-            $encodedArray = json_encode(array_values($permissionArr));
-            if (!file_put_contents(self::PERMISSIONS_FILE_PATH, $encodedArray)) {
-                throw new FileWriteException(self::PERMISSIONS_FILE_NAME);
-            }
-        }
-
-
-
+        parent::__construct(
+            'User',
+            $PERMISSIONS_FILE_LOC,
+            $PERMISSIONS_FILE_NAME,
+            $PERMISSIONS_SCHEMA,
+            $ALLOWED_OPERATIONS);
     }
+
+    /** Função para obter um array de permissões
+     * @return array Associative Array de permissões
+     * @throws FileReadException
+     * @throws OperationNotAllowedException
+     */
+    public function getPermissions(): array
+    {
+        return $this->getEntityData();
+    }
+
+    /** Função para adicionar uma nova permissão
+     * @param string $rfid rfid da nova permissão
+     * @return int Id da permissão criada
+     * @throws DuplicatePermissionException
+     * @throws DataSchemaException
+     * @throws FileReadException
+     * @throws FileWriteException
+     * @throws PersonNotFoundException
+     * @throws OperationNotAllowedException
+     */
+    public function addPermission(string $rfid): int
+    {
+
+        $permissionsArr = self::getPermissions();
+
+        // Validar nova permissão
+        if (!PermissionsUtils::validateNewPermission($permissionsArr, $rfid)) {
+            throw new DuplicatePermissionException($rfid);
+        }
+
+        // Obter id para a permissão
+        $id = PermissionsUtils::generateNewId($permissionsArr);
+
+        $newPermission = array("id" => $id, "rfid" => $rfid);
+
+        // Adicionar permissão
+        $this->addEntity($newPermission);
+        return $id;
+    }
+
+    /** Função para apagar uma permissão
+     * @throws DataSchemaException
+     * @throws FileWriteException
+     * @throws FileReadException
+     * @throws PermissionNotFoundException
+     * @throws EntityNotFoundException
+     * @throws OperationNotAllowedException
+     */
+    public function deletePermission(string $rfid)
+    {
+        $permissionsArr = self::getPermissions();
+        $index = PermissionsUtils::getPermissionIndex($permissionsArr, $rfid);
+        $this->deleteEntity($permissionsArr[$index]);
+    }
+
+    /** Função para atualizar uma permissão
+     * @throws DataSchemaException
+     * @throws FileReadException
+     * @throws PermissionNotFoundException
+     * @throws FileWriteException
+     * @throws OperationNotAllowedException
+     * @throws EntityNotFoundException
+     */
+    public function updatePermission(string $rfid, string $newRfid)
+    {
+        $permissionsArr = self::getPermissions();
+        $index = PermissionsUtils::getPermissionIndex($permissionsArr, $rfid);
+        $oldPermission = $permissionsArr[$index];
+        $newPermission = array(
+            "id"   =>$oldPermission['id'],
+            "rfid" =>$rfid
+        );
+        $this->updateEntity($oldPermission, $newPermission);
+    }
+
+
+}
