@@ -2,7 +2,6 @@
 
     include_once $_SERVER['DOCUMENT_ROOT'].'/utils/requestConfig.php';
     include_once $_SERVER['DOCUMENT_ROOT'].'/utils/commonResponses.php';
-    include_once $_SERVER['DOCUMENT_ROOT'] . '/SensorLogs/SensorType.php';
 
     requestConfig();
 

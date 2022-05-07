@@ -2,12 +2,12 @@
 
     include_once $_SERVER['DOCUMENT_ROOT'].'/vendor/autoload.php';
 
-    use Firebase\JWT\JWT;
-    use Firebase\JWT\Key;
-
     include_once $_SERVER['DOCUMENT_ROOT'].'/Auth/UserManager.php';
     include_once $_SERVER['DOCUMENT_ROOT'].'/Auth/exceptions/UserNotFoundException.php';
     include_once $_SERVER['DOCUMENT_ROOT'].'/Auth/exceptions/WrongCredentialsException.php';
+
+    use Firebase\JWT\JWT;
+    use Firebase\JWT\Key;
 
     abstract class AuthUtils {
 
@@ -29,9 +29,9 @@
          * @throws UserNotFoundException
          * @throws FileReadException
          */
-        public static function findUser($username): int
+        public static function findUser(array $users, string $username): int
         {
-            foreach (UserManager::getUsers() as $key => $user) {
+            foreach ($users as $key => $user) {
                if ($user['username'] == $username) {
                    return $key;
                }
@@ -40,7 +40,10 @@
             throw new UserNotFoundException($username);
         }
 
-        // TODO Implementar getJWT
+        /** Função para gerar um token twt
+         * @param string $username
+         * @return string
+         */
         public static function getJWT(string $username): string
         {
             $payload = [
@@ -51,6 +54,10 @@
             return JWT::encode($payload, self::$JWT_KEY, self::$JWT_ALG);
         }
 
+        /** Função para verificar se um token é válido
+         * @param string $jwt
+         * @return bool
+         */
         public static function verifyJWT(string $jwt) : bool
         {
             try {

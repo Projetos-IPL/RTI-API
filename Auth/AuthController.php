@@ -2,14 +2,19 @@
 
     include_once $_SERVER['DOCUMENT_ROOT'].'/utils/requestConfig.php';
     include_once $_SERVER['DOCUMENT_ROOT'].'/utils/commonResponses.php';
-    include_once $_SERVER['DOCUMENT_ROOT'].'/utils/Controller.php';
     include_once $_SERVER['DOCUMENT_ROOT'].'/utils/constants.php';
+
+    include_once $_SERVER['DOCUMENT_ROOT'].'/utils/Controller/Controller.php';
+    include_once $_SERVER['DOCUMENT_ROOT'].'/utils/Manager/Manager.php';
+    include_once $_SERVER['DOCUMENT_ROOT'].'/utils/Manager/exceptions/OperationNotAllowedException.php';
 
     include_once $_SERVER['DOCUMENT_ROOT'].'/Auth/AuthUtils.php';
     include_once $_SERVER['DOCUMENT_ROOT'].'/Auth/UserManager.php';
 
 
     class AuthController extends Controller {
+
+        private UserManager $userManager;
 
         public function __construct() {
             $AUTHORIZATION_MAP = array(
@@ -24,6 +29,8 @@
             $REQ_HEADER_SPEC = array(
                 GET => X_AUTH_TOKEN
             );
+
+            $this->userManager = new UserManager();
 
             parent::__construct($AUTHORIZATION_MAP, $REQ_BODY_SPEC, $REQ_HEADER_SPEC);
         }
@@ -57,8 +64,8 @@
         private function postHandler() {
             try {
                 // Efetuar login
-                $userIndex = AuthUtils::findUser($this->REQ_BODY['username']);
-                $usersArr = UserManager::getUsers();
+                $userIndex = AuthUtils::findUser($this->userManager->getEntityData(), $this->REQ_BODY['username']);
+                $usersArr = $this->userManager->getEntityData();
                 AuthUtils::login($usersArr[$userIndex], $this->REQ_BODY['password']);
 
                 // Enviar resposta
@@ -71,7 +78,7 @@
                 echo $res_body;
             } catch (UserNotFoundException | WrongCredentialsException) {
                 notAuthrorizedResponse();
-            } catch (FileReadException $e) {
+            } catch (FileReadException | OperationNotAllowedException $e) {
                 internalErrorResponse($e->getMessage());
             }
         }

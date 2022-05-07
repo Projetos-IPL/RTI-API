@@ -12,62 +12,67 @@
     include_once $_SERVER['DOCUMENT_ROOT'].'/People/exceptions/DuplicateRFIDException.php';
     include_once $_SERVER['DOCUMENT_ROOT'].'/People/PeopleUtils.php';
 
-    abstract class PeopleManager {
+     class PeopleManager extends Manager {
 
-        public const PEOPLE_FILE_LOC = ROOTPATH.'/files/';
-        public const PEOPLE_FILE_NAME = 'pessoas.json';
-        public const PEOPLE_FILE_PATH = self::PEOPLE_FILE_LOC . self::PEOPLE_FILE_NAME;
+         public function __construct()
+         {
+             $PEOPLE_FILE_LOC = ROOTPATH.'/files/';
+             $PEOPLE_FILE_NAME = 'pessoas.json';
+             $PEOPLE_SCHEMA = array('rfid', 'primNome', 'ultNome');
+             $ALLOWED_OPERATIONS = array(
+                 ManagerUtils::READ,
+                 ManagerUtils::WRITE,
+                 ManagerUtils::UPDATE,
+                 ManagerUtils::DELETE
+             );
 
-        /**
-         * @return array Associative Array de pessoas
-         * @throws FileReadException
-         */
-        public static function getPeople(): array
-        {
-            $file_contents = file_get_contents(self::PEOPLE_FILE_PATH);
-            $peopleArr = json_decode($file_contents, true);
+             parent::__construct(
+                 'User',
+                 $PEOPLE_FILE_LOC,
+                 $PEOPLE_FILE_NAME,
+                 $PEOPLE_SCHEMA,
+                 $ALLOWED_OPERATIONS);
+         }
 
-            if ($peopleArr === null) {
-                throw new FileReadException(self::PEOPLE_FILE_NAME);
-            }
+         /** Função para obter um array de pessoas
+          * @throws FileReadException
+          * @throws OperationNotAllowedException
+          */
+         public function getPeople() : array
+         {
+             return $this->getEntityData();
+         }
 
-            return $peopleArr;
-        }
-
-        /**
-         * @throws DuplicateRFIDException
-         * @throws DataSchemaException
-         * @throws FileReadException
-         * @throws FileWriteException
-         */
-        public static function addPerson(array $person) {
-
-            // Validar esquema da pessoa
-            if (!PeopleUtils::validatePersonSchema($person)) {
-                throw new DataSchemaException("Tentativa de adicionar pessoa com esquema incorreto.");
-            }
+         /** Função para adicionar o registo de uma pessoa
+          * @throws DuplicateRFIDException
+          * @throws DataSchemaException
+          * @throws FileReadException
+          * @throws FileWriteException
+          * @throws OperationNotAllowedException
+          */
+        public function addPerson(array $person) {
 
             // Verificar unicidade do RFID
-            if (!PeopleUtils::validateNewRFID($person['rfid'])) {
+            if (!PeopleUtils::validateNewRFID($this->getPeople(), $person['rfid'])) {
                 throw new DuplicateRFIDException('O rfid: ' . $person['rfid'] . ' já está associado a uma pessoa.');
             }
 
-            // Adicionar pessoa
-            $peopleArr = self::getPeople();
-            $peopleArr[] = $person;
-            self::overwritePeopleFile($peopleArr);
+            $this->addEntity($person);
         }
 
-        /**
+        /** Função para atualizar o registo de uma pessoa
          * @throws DataSchemaException
          * @throws NameUpdateException
          * @throws DuplicateRFIDException
          * @throws FileReadException
          * @throws PersonNotFoundException
          * @throws FileWriteException
+         * @throws OperationNotAllowedException
+         * @throws EntityNotFoundException
          */
-        public static function updatePerson(string $rfid, array $newPersonData) {
-            $personIndex = PeopleUtils::getPersonIndex($rfid);
+        public function updatePerson(string $rfid, array $newPersonData) {
+            $peopleArr = $this->getPeople();
+            $personIndex = PeopleUtils::getPersonIndex($peopleArr, $rfid);
 
             // Validar esquema da pessoa
             if (!PeopleUtils::validatePersonSchema($newPersonData)) {
@@ -75,12 +80,11 @@
             }
 
             // Verificar unicidade do novo rfid
-            if (!PeopleUtils::validateNewRFID($newPersonData['rfid'])) {
+            if (!PeopleUtils::validateNewRFID($this->getPeople(), $newPersonData['rfid'])) {
                 throw new DuplicateRFIDException('O rfid: ' . $newPersonData['rfid'] . ' já está associado a uma pessoa.');
             }
 
             // Validar restrições de alteração dos dados de pessoas
-            $peopleArr = self::getPeople();
             $oldPersonData = $peopleArr[$personIndex];
 
             if ($oldPersonData['primNome'] != $newPersonData['primNome'] ||
@@ -98,9 +102,7 @@
             EntranceRecordsManager::updateEntranceRecordsRFID($rfid, $newPersonData['rfid']);
 
             // Guardar alterações
-            $peopleArr[$personIndex] = $newPersonData;
-            self::overwritePeopleFile($peopleArr);
-
+            $this->updateEntity($oldPersonData, $newPersonData);
         }
 
         /**
@@ -108,11 +110,13 @@
          * @throws DataSchemaException
          * @throws FileWriteException
          * @throws FileReadException
+         * @throws OperationNotAllowedException
+         * @throws EntityNotFoundException
          */
-        public static function deletePerson(string $rfid) {
-            $index = PeopleUtils::getPersonIndex($rfid);
-            $peopleArr = self::getPeople();
-            unset($peopleArr[$index]); // Eliminar pessoa do array peopleArr;
+        public function deletePerson(string $rfid) {
+            $peopleArr = $this->getEntityData();
+            $index = PeopleUtils::getPersonIndex($peopleArr, $rfid);
+            $person = $peopleArr[$index];
 
             // Apagar permissões associadas à pessoa
             try {
@@ -122,24 +126,6 @@
             // Apagar registos associados à pessoa
             EntranceRecordsManager::deleteEntranceRecords($rfid);
 
-            self::overwritePeopleFile($peopleArr);
-        }
-
-        /**
-         * @throws FileWriteException
-         * @throws DataSchemaException
-         */
-        private static function overwritePeopleFile(array $peopleArr) {
-            // Validar integridade dos dados
-            foreach ($peopleArr as $person) {
-                if (!PeopleUtils::validatePersonSchema($person)) {
-                    throw new DataSchemaException("Esquema das pessoas corrupto, não foram efetuadas alterações.");
-                }
-            }
-            // Armazenar
-            $encodedArray = json_encode(array_values($peopleArr));
-            if (!file_put_contents(self::PEOPLE_FILE_PATH, $encodedArray)) {
-                throw new FileWriteException();
-            }
+            $this->deleteEntity($person);
         }
     }

@@ -9,7 +9,7 @@
         public const SENSOR_LOGS_FILE_NAME = 'sensorLogs.json';
         public const SENSOR_LOGS_FILE_PATH = self::SENSOR_LOGS_FILE_LOC . self::SENSOR_LOGS_FILE_NAME;
 
-        /**
+        /** Função para obter os registos de sensor
          * @throws FileReadException
          */
         public static function getSensorLogs(): array
@@ -24,22 +24,26 @@
             return $permissionsArr;
         }
 
-        /**
+        /** Função para adicionar o registo de sensor
          * @throws FileReadException
          * @throws FileWriteException
          * @throws DataSchemaException
          */
         public static function addSensorLog(array $log) {
+            if (!SensorLogUtils::validateSensorLogSchema($log)) {
+                throw new DataSchemaException();
+            }
+
             $logArr = self::getSensorLogs();
             $logArr[] = $log;
-            self::overwritePermissionsFile($logArr);
+            self::overwriteSensorLogFile($logArr);
         }
 
-        /**
+        /** Função para sobreescrever o ficheiro de registos de sensor
          * @throws DataSchemaException
          * @throws FileWriteException
          */
-        private static function overwritePermissionsFile(array $logArr) {
+        private static function overwriteSensorLogFile(array $logArr) {
             // Validar integridade dos dados
             foreach($logArr as $log) {
                 if (!SensorLogUtils::validateSensorLogSchema($log)) {

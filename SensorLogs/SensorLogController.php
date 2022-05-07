@@ -24,7 +24,6 @@
                 POST => X_AUTH_TOKEN
             );
 
-
             parent::__construct($AUTHORIZATION_MAP, $REQ_BODY_SPEC, $REQ_HEADER_SPEC);
         }
 

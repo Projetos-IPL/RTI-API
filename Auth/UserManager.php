@@ -2,26 +2,22 @@
 
     include_once $_SERVER['DOCUMENT_ROOT'].'/utils/constants.php';
     include_once $_SERVER['DOCUMENT_ROOT'].'/utils/exceptions/FileReadException.php';
+    include_once $_SERVER['DOCUMENT_ROOT'].'/utils/Manager/Manager.php';
 
-    abstract class UserManager {
+    class UserManager extends Manager {
 
-        public const USER_FILE_LOC = ROOTPATH.'/files/';
-        public const USER_FILE_NAME = 'users.json';
-        public const USER_FILE_PATH = self::USER_FILE_LOC . self::USER_FILE_NAME;
-
-        /**
-         * @return array Associative Array de utilizadores
-         * @throws FileReadException
-         */
-        public static function getUsers(): array
+        public function __construct()
         {
-            $file_contents = file_get_contents(self::USER_FILE_PATH);
-            $userArr = json_decode($file_contents, true);
+            $USER_FILE_LOC = ROOTPATH.'/files/';
+            $USER_FILE_NAME = 'users.json';
+            $USER_SCHEMA = array('username', 'password');
+            $ALLOWED_OPERATIONS = array(ManagerUtils::READ);
 
-            if (!$userArr) {
-                throw new FileReadException(self::USER_FILE_NAME);
-            }
-
-            return $userArr;
+            parent::__construct(
+                'User',
+                $USER_FILE_LOC,
+                $USER_FILE_NAME,
+                $USER_SCHEMA,
+                $ALLOWED_OPERATIONS);
         }
     }

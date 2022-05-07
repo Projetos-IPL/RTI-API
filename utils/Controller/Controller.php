@@ -1,11 +1,10 @@
 <?php
 
-    include_once $_SERVER['DOCUMENT_ROOT'].'/utils/ControllerUtils.php';
-    include_once $_SERVER['DOCUMENT_ROOT'].'/utils/ControllerUtils.php';
+    include_once $_SERVER['DOCUMENT_ROOT'].'/utils/Controller/ControllerUtils.php';
+    include_once $_SERVER['DOCUMENT_ROOT'].'/utils/Controller/exceptions/MissingRequiredHeadersException.php';
 
     include_once $_SERVER['DOCUMENT_ROOT'].'/utils/exceptions/InvalidTokenException.php';
     include_once $_SERVER['DOCUMENT_ROOT'].'/utils/exceptions/MissingTokenException.php';
-    include_once $_SERVER['DOCUMENT_ROOT'].'/utils/exceptions/MissingRequiredHeadersException.php';
 
     abstract class Controller {
 
@@ -46,6 +45,7 @@
                 return;
             } catch (MissingRequiredHeadersException) {
                 wrongFormatResponse("Falta cabeçalhos da especificação do endpoint.");
+                return;
             }
 
             // Continuar o tratamento do pedido
@@ -64,15 +64,16 @@
         protected function validateRequest() {
             $REQ_METHOD = $_SERVER['REQUEST_METHOD'];
 
+            // Verificar se os cabeçalhos especificados estão definidos
+            if (isset($this->REQ_HEADER_SPEC[$REQ_METHOD]) && !ControllerUtils::validateRequestHeaders($this->REQ_HEADERS, $this->REQ_HEADER_SPEC[$REQ_METHOD])) {
+                throw new MissingRequiredHeadersException();
+            }
+
             // Validar corpo do pedido
             if ($REQ_METHOD != GET && !ControllerUtils::validateRequestBody($this->REQ_BODY, $this->REQ_BODY_SPEC[$REQ_METHOD])) {
                 throw new InvalidRequestBodyException();
             }
 
-            // Verificar se os cabeçalhos especificados estão definidos
-            if (!ControllerUtils::validateRequestHeaders($this->REQ_HEADERS, $this->REQ_HEADER_SPEC[$REQ_METHOD])) {
-                throw new MissingRequiredHeadersException();
-            }
 
             // Fazer autenticação
             ControllerUtils::authorize($this->AUTHORIZATION_MAP, $this->REQ_HEADERS);

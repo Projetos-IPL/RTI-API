@@ -9,3 +9,5 @@
 
     defined('X_AUTH_TOKEN') or define('X_AUTH_TOKEN', 'X-Auth-Token');
 
+    defined('ENTITY_NOT_FOUND_INDEX') or define('ENTITY_NOT_FOUND_INDEX', -1);
+

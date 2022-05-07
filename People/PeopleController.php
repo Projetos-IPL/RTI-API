@@ -3,7 +3,7 @@
     include_once $_SERVER['DOCUMENT_ROOT'].'/utils/commonResponses.php';
     include_once $_SERVER['DOCUMENT_ROOT'].'/utils/requestConfig.php';
     include_once $_SERVER['DOCUMENT_ROOT'].'/utils/constants.php';
-    include_once $_SERVER['DOCUMENT_ROOT'].'/utils/Controller.php';
+    include_once $_SERVER['DOCUMENT_ROOT'].'/utils/Controller/Controller.php';
 
     include_once $_SERVER['DOCUMENT_ROOT'].'/utils/exceptions/FileWriteException.php';
     include_once $_SERVER['DOCUMENT_ROOT'].'/utils/exceptions/FileReadException.php';
@@ -16,13 +16,38 @@
 
     include_once 'PeopleManager.php';
 
-    abstract class PeopleController extends Controller {
+    class PeopleController extends Controller {
+        
+        private PeopleManager $peopleManager;
+        
+        public function __construct() {
+            $AUTHORIZATION_MAP = array(
+                GET => false,
+                POST => false,
+                DELETE => false,
+                PUT => false
+            );
 
+            $REQ_BODY_SPEC = array(
+                POST => ['primNome', 'ultNome', 'rfid'],
+                PUT => ['rfid', "data" => ["primNome", "ultNome", "rfid"]],
+                DELETE => ['rfid']
+            );
 
-        public static function handleRequest() {
-            requestConfig();
-            self::$REQ_BODY = json_decode(file_get_contents('php://input'), true) ?: array();
+            $REQ_HEADER_SPEC = array(
+                GET => X_AUTH_TOKEN,
+                POST => X_AUTH_TOKEN,
+                PUT => X_AUTH_TOKEN,
+                DELETE => X_AUTH_TOKEN,
+            );
 
+            $this->peopleManager = new PeopleManager();
+
+            parent::__construct($AUTHORIZATION_MAP, $REQ_BODY_SPEC, $REQ_HEADER_SPEC);
+        }
+
+        protected function routeRequest()
+        {
             switch ($_SERVER['REQUEST_METHOD']) {
                 case GET:
                     self::getHandler();
@@ -42,26 +67,22 @@
             }
         }
 
-        private static function getHandler() {
+
+        private function getHandler() {
             try {
-                $peopleArr = PeopleManager::getPeople();
+                $peopleArr = $this->peopleManager->getPeople();
                 $peopleJSONEncoded = json_encode(array_values($peopleArr));
                 successfulDataFetchResponse($peopleJSONEncoded);
-            } catch (FileReadException $e) {
+            } catch (FileReadException | OperationNotAllowedException $e) {
                 internalErrorResponse($e->getMessage());
             }
         }
 
-        private static function postHandler() {
-            if (!self::validatePostRequest(self::$REQ_BODY)) {
-                wrongFormatResponse();
-                return;
-            }
-
+        private function postHandler() {
             // Tentar adicionar pessoa
             try {
-                PeopleManager::addPerson(self::$REQ_BODY);
-                objectWrittenSuccessfullyResponse(self::$REQ_BODY);
+                $this->peopleManager->addPerson($this->REQ_BODY);
+                objectWrittenSuccessfullyResponse($this->REQ_BODY);
             } catch (DuplicateRFIDException $e) {
                 unprocessableEntityResponse($e->getMessage());
             } catch (DataSchemaException | FileWriteException | FileReadException $e) {
@@ -69,16 +90,11 @@
             }
         }
 
-        private static function putHandler() {
-            if (!self::validatePutRequest(self::$REQ_BODY)) {
-                wrongFormatResponse();
-                return;
-            }
-
+        private function putHandler() {
             // Tentar atualizar pessoa e responder com o resultado
             try {
-                PeopleManager::updatePerson(self::$REQ_BODY['rfid'], self::$REQ_BODY['data']);
-                objectWrittenSuccessfullyResponse(self::$REQ_BODY['data']);
+                $this->peopleManager->updatePerson($this->REQ_BODY['rfid'], $this->REQ_BODY['data']);
+                objectWrittenSuccessfullyResponse($this->REQ_BODY['data']);
             } catch (FileReadException | FileWriteException | DataSchemaException$e) {
                 internalErrorResponse($e->getMessage());
             } catch (PersonNotFoundException | NameUpdateException | DuplicateRFIDException $e) {
@@ -86,50 +102,16 @@
             }
         }
 
-        private static function deleteHandler() {
-            if (!self::validateDeleteRequest(self::$REQ_BODY)) {
-                wrongFormatResponse();
-                return;
-            }
-
+        private function deleteHandler() {
             // Tentar apagar pessoa e responder com o resultado
             try {
-                PeopleManager::deletePerson(self::$REQ_BODY['rfid']);
-                objectDeletedSuccessfullyResponse(self::$REQ_BODY);
+                $this->peopleManager->deletePerson($this->REQ_BODY['rfid']);
+                objectDeletedSuccessfullyResponse($this->REQ_BODY);
             } catch (PersonNotFoundException $e) {
                 unprocessableEntityResponse($e->getMessage());
             } catch (DataSchemaException | FileReadException | FileWriteException $e) {
                 internalErrorResponse($e->getMessage());
             }
         }
-
-        private static function validatePostRequest(array $req_body): bool
-        {
-            if (!PeopleUtils::validatePersonSchema($req_body)) {
-                return false;
-            }
-           return true;
-        }
-
-        private static function validatePutRequest(array $req_body): bool
-        {
-            if (!isset($req_body["rfid"]) || !isset($req_body["data"])) {
-                return false;
-            }
-            if (!PeopleUtils::validatePersonSchema($req_body["data"])) {
-                return false;
-            }
-            return true;
-        }
-
-        private static function validateDeleteRequest(array $req_body): bool
-        {
-            if (!isset($req_body["rfid"])) {
-                return false;
-            }
-            return true;
-        }
-
-
     }
 

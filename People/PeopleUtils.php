@@ -23,11 +23,9 @@
          * @throws FileReadException
          * @throws PersonNotFoundException
          */
-        public static function getPersonIndex(string $rfid): int
+        public static function getPersonIndex(array $peopleArr, string $rfid): int
         {
-            $peopleArr = PeopleManager::getPeople();
             $index = -1;
-
             foreach($peopleArr as $key => $person) {
                 if ($person['rfid'] == $rfid) {
                     $index = $key;
@@ -46,11 +44,12 @@
          * @param $rfid string rfid a ser validado
          * @return bool True se RFID for válido, False se não.
          * @throws FileReadException
+         * @throws OperationNotAllowedException
          */
-        public static function validateNewRFID(string $rfid): bool
+        public static function validateNewRFID(array $peopleArr, string $rfid): bool
         {
             try {
-                self::getPersonIndex($rfid);
+                self::getPersonIndex($peopleArr, $rfid);
                 return false;
             } catch (PersonNotFoundException $e) {
                 return true;

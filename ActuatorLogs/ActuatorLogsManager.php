@@ -5,41 +5,46 @@
 
     abstract class ActuatorLogsManager {
 
-        public const SENSOR_LOGS_FILE_LOC = ROOTPATH.'/files/';
-        public const SENSOR_LOGS_FILE_NAME = 'actuatorLogs.json';
-        public const SENSOR_LOGS_FILE_PATH = self::SENSOR_LOGS_FILE_LOC . self::SENSOR_LOGS_FILE_NAME;
+        public const ACTUATOR_LOGS_FILE_LOC = ROOTPATH.'/files/';
+        public const ACTUATOR_LOGS_FILE_NAME = 'actuatorLogs.json';
+        public const ACTUATOR_LOGS_FILE_PATH = self::ACTUATOR_LOGS_FILE_LOC . self::ACTUATOR_LOGS_FILE_NAME;
 
-        /**
+        /** Função para obter os registos de atuadores armazenados em ficheiro
          * @throws FileReadException
          */
-        public static function getActuatorLogss(): array
+        public static function getActuatorLogs(): array
         {
-            $file_contents = file_get_contents(self::SENSOR_LOGS_FILE_PATH);
+            $file_contents = file_get_contents(self::ACTUATOR_LOGS_FILE_PATH);
             $permissionsArr = json_decode($file_contents, true);
 
             if ($permissionsArr === null) {
-                throw new FileReadException(self::SENSOR_LOGS_FILE_NAME);
+                throw new FileReadException(self::ACTUATOR_LOGS_FILE_NAME);
             }
 
             return $permissionsArr;
         }
 
-        /**
+        /** Função para adicionar um registo de atuador aos logs armazenados em ficheiro
          * @throws FileReadException
          * @throws FileWriteException
          * @throws DataSchemaException
          */
         public static function addActuatorLogs(array $log) {
-            $logArr = self::getActuatorLogss();
+            if (!ActuatorLogsUtils::validateActuatorLogsSchema($log)) {
+                throw new DataSchemaException();
+            }
+
+            $logArr = self::getActuatorLogs();
             $logArr[] = $log;
-            self::overwritePermissionsFile($logArr);
+
+            self::overwriteActuatorLogsFile($logArr);
         }
 
-        /**
+        /** Função para sobreescrever o ficheiro dos registos de atuador
          * @throws DataSchemaException
          * @throws FileWriteException
          */
-        private static function overwritePermissionsFile(array $logArr) {
+        private static function overwriteActuatorLogsFile(array $logArr) {
             // Validar integridade dos dados
             foreach($logArr as $log) {
                 if (!ActuatorLogsUtils::validateActuatorLogsSchema($log)) {
@@ -48,8 +53,8 @@
             }
             // Armazenar
             $encodedArray = json_encode(array_values($logArr));
-            if(!file_put_contents(self::SENSOR_LOGS_FILE_PATH, $encodedArray)) {
-                throw new FileWriteException(self::SENSOR_LOGS_FILE_PATH);
+            if(!file_put_contents(self::ACTUATOR_LOGS_FILE_PATH, $encodedArray)) {
+                throw new FileWriteException(self::ACTUATOR_LOGS_FILE_PATH);
             }
         }
 

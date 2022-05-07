@@ -17,10 +17,19 @@
             }
 
             $valid = true;
-            foreach ($reqBodySpec as $prop) {
-                if (!isset($reqBody[$prop])) {
-                    $valid = false;
-                    break;
+            foreach ($reqBodySpec as $key => $prop) {
+                // Se uma das propriedades for um array, fazer chamada recursiva para validar esse array
+                if (gettype($prop) == 'array') {
+                    $valid = self::validateRequestBody($reqBody[$key], $prop);
+                    if (!$valid) {
+                        break;
+                    }
+                } else {
+                    if (!isset($reqBody[$prop])) {
+                        $valid = false;
+                        break;
+
+                    }
                 }
             }
             if (count($reqBody) != count($reqBodySpec)) {
