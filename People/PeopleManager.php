@@ -28,7 +28,7 @@ class PeopleManager extends Manager
         );
 
         parent::__construct(
-            'User',
+            'PERSON',
             $PEOPLE_FILE_LOC,
             $PEOPLE_FILE_NAME,
             $PEOPLE_SCHEMA,
@@ -97,12 +97,12 @@ class PeopleManager extends Manager
 
         // Atualizar permissões associadas à pessoa
         try {
-            PermissionsManager::updatePermission($rfid, $newPersonData['rfid']);
+            (new PermissionsManager())->updatePermission($rfid, $newPersonData['rfid']);
         } catch (PermissionNotFoundException) {
         }
 
         // Atualizar registos de entrada associados à pessoa
-        EntranceRecordsManager::updateEntranceRecordsRFID($rfid, $newPersonData['rfid']);
+        (new EntranceRecordsManager())->updateEntranceRecordsRFID($rfid, $newPersonData['rfid']);
 
         // Guardar alterações
         $this->updateEntity($oldPersonData, $newPersonData);
@@ -124,12 +124,12 @@ class PeopleManager extends Manager
 
         // Apagar permissões associadas à pessoa
         try {
-            PermissionsManager::deletePermission($rfid);
+            (new PermissionsManager())->deletePermission($rfid);
         } catch (PermissionNotFoundException) {
         }
 
         // Apagar registos associados à pessoa
-        EntranceRecordsManager::deleteEntranceRecords($rfid);
+        (new EntranceRecordsManager())->deleteEntranceRecords($rfid);
 
         $this->deleteEntity($person);
     }

@@ -10,9 +10,11 @@ include_once $_SERVER['DOCUMENT_ROOT'] . '/Permissions/PermissionsManager.php';
 class PermissionsController extends Controller
 {
     private PermissionsManager $permissionsManager;
-    
+
     public function __construct()
     {
+        $ALLOWED_METHODS = [GET, POST, DELETE];
+
         $AUTHORIZATION_MAP = array(
             GET => false,
             POST => false,
@@ -33,7 +35,7 @@ class PermissionsController extends Controller
 
         $this->permissionsManager = new PermissionsManager();
 
-        parent::__construct($AUTHORIZATION_MAP, $REQ_BODY_SPEC, $REQ_HEADER_SPEC);
+        parent::__construct($ALLOWED_METHODS, $AUTHORIZATION_MAP, $REQ_BODY_SPEC, $REQ_HEADER_SPEC);
     }
     
     protected function routeRequest()

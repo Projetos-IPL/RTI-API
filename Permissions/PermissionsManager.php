@@ -16,11 +16,12 @@ class PermissionsManager extends Manager
         $ALLOWED_OPERATIONS = array(
             ManagerUtils::READ,
             ManagerUtils::WRITE,
+            ManagerUtils::UPDATE,
             ManagerUtils::DELETE
         );
 
         parent::__construct(
-            'User',
+            'PERMISSION',
             $PERMISSIONS_FILE_LOC,
             $PERMISSIONS_FILE_NAME,
             $PERMISSIONS_SCHEMA,

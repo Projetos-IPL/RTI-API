@@ -1,64 +1,45 @@
 <?php
 
-    include_once $_SERVER['DOCUMENT_ROOT'].'/utils/constants.php';
-    include_once $_SERVER['DOCUMENT_ROOT'].'/ActuatorLogs/ActuatorLogsUtils.php';
+include_once $_SERVER['DOCUMENT_ROOT'] . '/utils/constants.php';
 
-    abstract class ActuatorLogsManager {
+class ActuatorLogsManager extends Manager
+{
 
-        public const ACTUATOR_LOGS_FILE_LOC = ROOTPATH.'/files/';
-        public const ACTUATOR_LOGS_FILE_NAME = 'actuatorLogs.json';
-        public const ACTUATOR_LOGS_FILE_PATH = self::ACTUATOR_LOGS_FILE_LOC . self::ACTUATOR_LOGS_FILE_NAME;
+    public function __construct()
+    {
+        $ACTUATOR_LOGS_FILE_LOC = ROOTPATH . '/files/';
+        $ACTUATOR_LOGS_FILE_NAME = 'actuatorLogs.json';
+        $ACTUATOR_LOGS_SCHEMA = array('actuatorType', 'timestamp');
 
-        /** Função para obter os registos de atuadores armazenados em ficheiro
-         * @throws FileReadException
-         */
-        public static function getActuatorLogs(): array
-        {
-            $file_contents = file_get_contents(self::ACTUATOR_LOGS_FILE_PATH);
-            $permissionsArr = json_decode($file_contents, true);
+        $ALLOWED_OPERATIONS = array(
+            ManagerUtils::READ,
+            ManagerUtils::WRITE);
 
-            if ($permissionsArr === null) {
-                throw new FileReadException(self::ACTUATOR_LOGS_FILE_NAME);
-            }
-
-            return $permissionsArr;
-        }
-
-        /** Função para adicionar um registo de atuador aos logs armazenados em ficheiro
-         * @throws FileReadException
-         * @throws FileWriteException
-         * @throws DataSchemaException
-         */
-        public static function addActuatorLogs(array $log) {
-            if (!ActuatorLogsUtils::validateActuatorLogsSchema($log)) {
-                throw new DataSchemaException();
-            }
-
-            $logArr = self::getActuatorLogs();
-            $logArr[] = $log;
-
-            self::overwriteActuatorLogsFile($logArr);
-        }
-
-        /** Função para sobreescrever o ficheiro dos registos de atuador
-         * @throws DataSchemaException
-         * @throws FileWriteException
-         */
-        private static function overwriteActuatorLogsFile(array $logArr) {
-            // Validar integridade dos dados
-            foreach($logArr as $log) {
-                if (!ActuatorLogsUtils::validateActuatorLogsSchema($log)) {
-                    throw new DataSchemaException("Esquema dos registos de atuador corrupto, as alterações não foram efetuadas.");
-                }
-            }
-            // Armazenar
-            $encodedArray = json_encode(array_values($logArr));
-            if(!file_put_contents(self::ACTUATOR_LOGS_FILE_PATH, $encodedArray)) {
-                throw new FileWriteException(self::ACTUATOR_LOGS_FILE_PATH);
-            }
-        }
-
-
-
-
+        parent::__construct(
+            'ACTUATOR_LOG',
+            $ACTUATOR_LOGS_FILE_LOC,
+            $ACTUATOR_LOGS_FILE_NAME,
+            $ACTUATOR_LOGS_SCHEMA,
+            $ALLOWED_OPERATIONS);
     }
+
+    /** Função para obter os registos de atuadores armazenados em ficheiro
+     * @throws FileReadException
+     * @throws OperationNotAllowedException
+     */
+    public function getActuatorLogs(): array
+    {
+        return $this->getEntityData();
+    }
+
+    /** Função para adicionar um registo de atuador aos logs armazenados em ficheiro
+     * @throws FileReadException
+     * @throws FileWriteException
+     * @throws DataSchemaException
+     * @throws OperationNotAllowedException
+     */
+    public function addActuatorLog(array $log)
+    {
+        $this->addEntity($log);
+    }
+}

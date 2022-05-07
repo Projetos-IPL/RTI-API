@@ -14,7 +14,7 @@
             $ALLOWED_OPERATIONS = array(ManagerUtils::READ);
 
             parent::__construct(
-                'User',
+                'USER',
                 $USER_FILE_LOC,
                 $USER_FILE_NAME,
                 $USER_SCHEMA,

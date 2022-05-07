@@ -1,67 +1,78 @@
 <?php
 
-    include_once $_SERVER['DOCUMENT_ROOT'].'/utils/constants.php';
-    include_once $_SERVER['DOCUMENT_ROOT'].'/utils/Controller.php';
-    include_once $_SERVER['DOCUMENT_ROOT'].'/utils/commonResponses.php';
-    include_once $_SERVER['DOCUMENT_ROOT'].'/utils/requestConfig.php';
-    include_once $_SERVER['DOCUMENT_ROOT'].'/utils/Controller.php';
+include_once $_SERVER['DOCUMENT_ROOT'] . '/utils/constants.php';
+include_once $_SERVER['DOCUMENT_ROOT'] . '/utils/commonResponses.php';
+include_once $_SERVER['DOCUMENT_ROOT'] . '/utils/requestConfig.php';
 
-    include_once $_SERVER['DOCUMENT_ROOT'] . '/EntranceRecords/EntranceRecordsManager.php';
+include_once $_SERVER['DOCUMENT_ROOT'] . '/utils/Controller/Controller.php';
+include_once $_SERVER['DOCUMENT_ROOT'] . '/EntranceRecords/EntranceRecordsManager.php';
 
-    abstract class EntranceRecordsController extends Controller {
+class EntranceRecordsController extends Controller
+{
 
-        public static function handleRequest() {
-            requestConfig();
-            self::$REQ_BODY = json_decode(file_get_contents('php://input'), true) ?: array();
+    private EntranceRecordsManager $entranceRecordsManager;
 
-            switch ($_SERVER['REQUEST_METHOD']) {
-                case GET:
-                    self::getHandler();
-                    break;
-                case POST:
-                    self::postHandler();
-                    break;
-                default:
-                    methodNotAvailable($_SERVER['REQUEST_METHOD']);
-            }
-        }
+    public function __construct()
+    {
 
-        public static function getHandler() {
-            try {
-                $recordsArr = EntranceRecordsManager::getEntranceRecords();
-                $recordsJSONEncoded = json_encode(array_values($recordsArr));
-                successfulDataFetchResponse($recordsJSONEncoded);
-            } catch (FileReadException $e) {
-                internalErrorResponse($e->getMessage());
-            }
-        }
+        $ALLOWED_METHODS = [GET, POST];
 
-        public static function postHandler() {
-            if (!self::validatePostRequest(self::$REQ_BODY)) {
-                wrongFormatResponse();
-                return;
-            }
+        $AUTHORIZATION_MAP = array(
+            GET => false,
+            POST => false,
+            DELETE => false,
+            PUT => false
+        );
 
-            // Tentar adicionar registo
-            try {
-                $newRecord = EntranceRecordsManager::createEntranceRecord(self::$REQ_BODY['rfid']);
-                objectWrittenSuccessfullyResponse($newRecord);
-            } catch (PersonNotFoundException $e) {
-                unprocessableEntityResponse($e->getMessage());
-            } catch (DataSchemaException | FileReadException | FileWriteException $e) {
-                internalErrorResponse($e->getMessage());
-            }
-        }
+        $REQ_BODY_SPEC = array(
+            POST => ['rfid']
+        );
 
-        public static function validatePostRequest(array $req_body): bool
-        {
-            if (count($req_body) != 1 || !isset($req_body['rfid'])) {
-                return false;
-            }
-            return true;
-        }
+        $REQ_HEADER_SPEC = array(
+            GET => X_AUTH_TOKEN,
+            POST => X_AUTH_TOKEN,
+        );
 
+        $this->entranceRecordsManager = new EntranceRecordsManager();
 
-
-
+        parent::__construct($ALLOWED_METHODS, $AUTHORIZATION_MAP, $REQ_BODY_SPEC, $REQ_HEADER_SPEC);
     }
+
+    protected function routeRequest()
+    {
+        switch ($_SERVER['REQUEST_METHOD']) {
+            case GET:
+                self::getHandler();
+                break;
+            case POST:
+                self::postHandler();
+                break;
+            default:
+                methodNotAvailable($_SERVER['REQUEST_METHOD']);
+        }
+    }
+
+    public function getHandler()
+    {
+        try {
+            $recordsArr = $this->entranceRecordsManager->getEntranceRecords();
+            $recordsJSONEncoded = json_encode(array_values($recordsArr));
+            successfulDataFetchResponse($recordsJSONEncoded);
+        } catch (FileReadException|OperationNotAllowedException $e) {
+            internalErrorResponse($e->getMessage());
+        }
+    }
+
+    public function postHandler()
+    {
+        // Tentar adicionar registo
+        try {
+            $newRecord = $this->entranceRecordsManager->createEntranceRecord($this->REQ_BODY['rfid']);
+            objectWrittenSuccessfullyResponse($newRecord);
+        } catch (PersonNotFoundException $e) {
+            unprocessableEntityResponse($e->getMessage());
+        } catch (DataSchemaException|FileReadException|FileWriteException|OperationNotAllowedException $e) {
+            internalErrorResponse($e->getMessage());
+        }
+    }
+}

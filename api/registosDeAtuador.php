@@ -1,5 +1,5 @@
 <?php
 
-    include_once $_SERVER['DOCUMENT_ROOT'] . '/ActuatorLogs/ActuatorLogsController.php';
+include_once $_SERVER['DOCUMENT_ROOT'] . '/ActuatorLogs/ActuatorLogsController.php';
 
-    ActuatorLogsController::handleRequest();
+(new ActuatorLogsController())->handleRequest();
