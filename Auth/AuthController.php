@@ -17,6 +17,11 @@
         private UserManager $userManager;
 
         public function __construct() {
+            $ALLOWED_METHODS = array (
+                GET,
+                POST
+            );
+
             $AUTHORIZATION_MAP = array(
                 GET => false,
                 POST => true,
@@ -32,7 +37,7 @@
 
             $this->userManager = new UserManager();
 
-            parent::__construct($AUTHORIZATION_MAP, $REQ_BODY_SPEC, $REQ_HEADER_SPEC);
+            parent::__construct($ALLOWED_METHODS, $AUTHORIZATION_MAP, $REQ_BODY_SPEC, $REQ_HEADER_SPEC);
         }
 
         protected function routeRequest() {
