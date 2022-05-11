@@ -33,9 +33,15 @@ class EntranceRecordsController extends Controller
             POST => X_AUTH_TOKEN,
         );
 
+        $ALLOWED_URL_PARAMS = ['rfid', 'access', 'date'];
+
         $this->entranceRecordsManager = new EntranceRecordsManager();
 
-        parent::__construct($ALLOWED_METHODS, $AUTHORIZATION_MAP, $REQ_BODY_SPEC, $REQ_HEADER_SPEC);
+        parent::__construct($ALLOWED_METHODS,
+                            $AUTHORIZATION_MAP,
+                            $REQ_BODY_SPEC,
+                            REQ_HEADER_SPEC: $REQ_HEADER_SPEC,
+                            ALLOWED_URL_PARAMS: $ALLOWED_URL_PARAMS);
     }
 
     protected function routeRequest()
@@ -56,8 +62,32 @@ class EntranceRecordsController extends Controller
     {
         try {
             $recordsArr = $this->entranceRecordsManager->getEntranceRecords();
+
+            if (count($this->URL_PARAMS) != 0) {
+
+                // Filtrar por rfid
+                if (isset($this->URL_PARAMS['rfid'])) {
+                    $recordsArr = EntranceRecordsUtils::getEntranceRecordsByRFID($recordsArr, $this->URL_PARAMS['rfid']);
+                }
+
+                // Filtrar por access
+                if (isset($this->URL_PARAMS['access'])) {
+                    $recordsArr = EntranceRecordsUtils::filterRecordsByAccess($recordsArr, $this->URL_PARAMS['access']);
+                }
+
+                // TODO Implementar
+                // Filtrar por data
+                if (isset($this->URL_PARAMS['date'])) {
+                    $recordsArr = EntranceRecordsUtils::filterRecordsByDate($recordsArr, $this->URL_PARAMS['date']);
+                }
+
+            }
+
             $recordsJSONEncoded = json_encode(array_values($recordsArr));
             successfulDataFetchResponse($recordsJSONEncoded);
+
+        } catch (EntranceRecordNotFoundException) {
+            noContentResponse();
         } catch (FileReadException|OperationNotAllowedException $e) {
             internalErrorResponse($e->getMessage());
         }

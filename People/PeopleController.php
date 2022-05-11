@@ -44,9 +44,15 @@
                 DELETE => X_AUTH_TOKEN,
             );
 
+            $ALLOWED_URL_PARAMS = ['rfid'];
+
             $this->peopleManager = new PeopleManager();
 
-            parent::__construct($ALLOWED_METHODS, $AUTHORIZATION_MAP, $REQ_BODY_SPEC, $REQ_HEADER_SPEC);
+            parent::__construct($ALLOWED_METHODS,
+                                $AUTHORIZATION_MAP,
+                                $REQ_BODY_SPEC,
+                                REQ_HEADER_SPEC: $REQ_HEADER_SPEC,
+                                ALLOWED_URL_PARAMS: $ALLOWED_URL_PARAMS);
         }
 
         protected function routeRequest()
@@ -74,6 +80,13 @@
         private function getHandler() {
             try {
                 $peopleArr = $this->peopleManager->getPeople();
+
+                // Se for passado um parâmetro de url 'rfid', filtrar lista por esse rfid
+                if (count($this->URL_PARAMS) != 0 && isset($this->URL_PARAMS['rfid'])) {
+                    $index = PeopleUtils::getPersonIndex($peopleArr, $this->URL_PARAMS['rfid']);
+                    $peopleArr = array($peopleArr[$index]);
+                }
+
                 $peopleJSONEncoded = json_encode(array_values($peopleArr));
                 successfulDataFetchResponse($peopleJSONEncoded);
             } catch (FileReadException | OperationNotAllowedException $e) {

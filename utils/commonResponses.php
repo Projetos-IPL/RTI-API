@@ -32,6 +32,10 @@
         echo json_encode($object);
     }
 
+    function noContentResponse() {
+        http_response_code(204);
+    }
+
     function unprocessableEntityResponse($message) {
         http_response_code(422);
         echo json_encode(array("message" => $message));

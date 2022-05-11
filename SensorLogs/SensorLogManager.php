@@ -38,9 +38,13 @@ class SensorLogManager extends Manager
      * @throws FileWriteException
      * @throws DataSchemaException
      * @throws OperationNotAllowedException
+     * @throws InvalidSensorTypeException
      */
     public function addSensorLog(array $log)
     {
+        if (!SensorLogUtils::validateSensorType($log['sensorType'])) {
+            throw new InvalidSensorTypeException($log['sensorType']);
+        }
         $this->addEntity($log);
     }
 }

@@ -42,16 +42,16 @@
             return true;
         }
 
-        /**
-         * Função para obter um array com registos de entrada associados a um determinado rfid
+        /** Função para obter um array com registos de entrada associados a um determinado rfid
+         * @param array $entranceRecords entrance records
          * @param string $rfid rfid a ser procurado
-         * @throws FileReadException
+         * @return array Entrance records com o rfid passado
          * @throws EntranceRecordNotFoundException Lançada quando não são encontrados registos
          */
-        public static function getEntranceRecordsByRFID(string $rfid): array
+        public static function getEntranceRecordsByRFID(array $entranceRecords, string $rfid): array
         {
             $recordsFound = array();
-            foreach(EntranceRecordsManager::getEntranceRecords() as $record) {
+            foreach($entranceRecords as $record) {
                 if ($record['rfid'] === $rfid) {
                     $recordsFound[] = $record;
                 }
@@ -63,5 +63,41 @@
                 throw new EntranceRecordNotFoundException($rfid);
             }
 
+        }
+
+        /** Função para filtrar um array registos por acesso
+         * @param array $records
+         * @param string $access
+         * @return array Array filtrado
+         */
+        public static function filterRecordsByAccess(array $records, string $access) : array
+        {
+            switch (strtolower($access)) {
+                case 'true':
+                    $accessBool = true;
+                    break;
+                case 'false':
+                    $accessBool = false;
+                    break;
+                default:
+                    return array();
+            }
+
+            return array_filter($records, function ($value) use ($accessBool) {
+                return $value['access'] == $accessBool;
+            }, ARRAY_FILTER_USE_BOTH);
+        }
+
+        /** Função para filtrar um array de registos por data
+         * @param array $recordsArr
+         * @param string $date Data
+         * @return array Array filtrado
+         */
+        public static function filterRecordsByDate(array $recordsArr, string $date) : array
+        {
+            return array_filter($recordsArr, function ($record) use ($date) {
+                $recordDate = date('d-m-y', $record['timestamp']);
+                return $recordDate == $date;
+            }, ARRAY_FILTER_USE_BOTH);
         }
     }

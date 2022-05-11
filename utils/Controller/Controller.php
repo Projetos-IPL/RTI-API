@@ -4,6 +4,7 @@
     include_once $_SERVER['DOCUMENT_ROOT'].'/utils/Controller/exceptions/MissingRequiredHeadersException.php';
     include_once $_SERVER['DOCUMENT_ROOT'].'/utils/Controller/exceptions/InvalidRequestBodyException.php';
     include_once $_SERVER['DOCUMENT_ROOT'].'/utils/Controller/exceptions/HttpRequestMethodNotAllowedException.php';
+    include_once $_SERVER['DOCUMENT_ROOT'].'/utils/Controller/exceptions/InvalidURLParamsException.php';
 
     include_once $_SERVER['DOCUMENT_ROOT'].'/utils/exceptions/InvalidTokenException.php';
     include_once $_SERVER['DOCUMENT_ROOT'].'/utils/exceptions/MissingTokenException.php';
@@ -11,11 +12,13 @@
     abstract class Controller {
 
         // Configurações
-        protected array $ALLOWED_METHODS;   // Métodos http permitidos
-        protected array $AUTHORIZATION_MAP; // Configuração de autenticação para métodos
-        protected array $REQ_BODY_SPEC;     // Especificação do corpo dos pedidos, por método
-        protected array $REQ_HEADER_SPEC;   // Especificação dos cabeçalhos dos pedidos, por método
+        protected array $ALLOWED_METHODS;    // Métodos http permitidos
+        protected array $AUTHORIZATION_MAP;  // Configuração de autenticação para métodos
+        protected array $REQ_BODY_SPEC;      // Especificação do corpo dos pedidos, por método
+        protected array $REQ_HEADER_SPEC;    // Especificação dos cabeçalhos dos pedidos, por método
+        protected array $ALLOWED_URL_PARAMS; // Parametros de url permitidos
 
+        protected array $URL_PARAMS;        // Constante dos parametros de URL
         protected array $REQ_BODY;          // Constante do corpo do pedido em ocorrência
         protected array $REQ_HEADERS;       // Constante dos cabeçalhos do pedido em ocorrência
 
@@ -25,16 +28,25 @@
          * @param array $REQ_BODY_SPEC Especificação do corpo dos pedidos, por método
          * @param array $REQ_HEADER_SPEC specificação dos cabeçalhos dos pedidos, por método
          */
-        public function __construct(array $ALLOWED_METHODS, array $AUTHORIZATION_MAP, array $REQ_BODY_SPEC, array $REQ_HEADER_SPEC = array())
+        public function __construct(array $ALLOWED_METHODS,
+                                    array $AUTHORIZATION_MAP,
+                                    array $REQ_BODY_SPEC,
+                                    array $REQ_HEADER_SPEC = array(),
+                                    array $ALLOWED_URL_PARAMS = array())
         {
             $this->ALLOWED_METHODS = $ALLOWED_METHODS;
             $this->AUTHORIZATION_MAP = $AUTHORIZATION_MAP;
             $this->REQ_BODY_SPEC = $REQ_BODY_SPEC;
             $this->REQ_HEADER_SPEC = $REQ_HEADER_SPEC;
+            $this->ALLOWED_URL_PARAMS = $ALLOWED_URL_PARAMS;
             // Obter corpo do pedido
             $this->REQ_BODY = json_decode(file_get_contents('php://input'), true) ?: array();
             // Obter cabeçalhos do pedido
             $this->REQ_HEADERS = ControllerUtils::get_HTTP_request_headers();
+            // Obter query params
+            $components = parse_url($_SERVER['REQUEST_URI'], PHP_URL_QUERY);
+            $this->URL_PARAMS = array();
+            parse_str($components, $this->URL_PARAMS);
         }
 
         /** Função de entrada para o tratamento de um pedido por um Controller
@@ -59,6 +71,9 @@
             } catch (MissingRequiredHeadersException) {
                 wrongFormatResponse("Falta cabeçalhos da especificação do endpoint.");
                 return;
+            } catch (InvalidURLParamsException) {
+                wrongFormatResponse("Parâmetros de URL não permitidos.");
+                return;
             } catch (HttpRequestMethodNotAllowedException) {
                 methodNotAvailable($_SERVER['REQUEST_METHOD']);
                 return;
@@ -76,6 +91,7 @@
          * @throws InvalidRequestBodyException
          * @throws MissingRequiredHeadersException
          * @throws HttpRequestMethodNotAllowedException
+         * @throws InvalidURLParamsException
          */
         protected function validateRequest() {
             $REQ_METHOD = $_SERVER['REQUEST_METHOD'];
@@ -93,6 +109,11 @@
             // Validar corpo do pedido
             if ($REQ_METHOD != GET && !ControllerUtils::validateRequestBody($this->REQ_BODY, $this->REQ_BODY_SPEC[$REQ_METHOD])) {
                 throw new InvalidRequestBodyException();
+            }
+
+            // Validar URL params
+            if (count($this->URL_PARAMS) > 0 && !ControllerUtils::validateURLParams($this->URL_PARAMS, $this->ALLOWED_URL_PARAMS)) {
+                throw new InvalidURLParamsException();
             }
 
             // Fazer autenticação
