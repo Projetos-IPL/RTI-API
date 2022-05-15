@@ -11,28 +11,29 @@
 
     abstract class Manager {
 
-        protected string $ENTITY_NAME;
-
-        protected string $ENTITY_FILE_LOC;
-        protected string $ENTITY_FILE_NAME;
-        protected string $ENTITY_FILE_PATH;
-
-        protected array $ENTITY_SCHEMA;
-        protected array $ALLOWED_OPERATIONS;
+        protected string $ENTITY_NAME;          // Nome da entidade
+        protected string $ENTITY_FILE_LOC;      // Deprecated
+        protected string $ENTITY_TABLE_NAME;    // Nome da tabela da entidade
+        protected string $ENTITY_FILE_PATH;     // Deprecated
+        protected array $ENTITY_SCHEMA;         // Esquema da entidade
+        protected array $ALLOWED_OPERATIONS;    // Operações permitidas à entidade
+        protected PDO $pdo;                     // PHP Data Object para interagir com a base de dados
 
         public function __construct(
             string $ENTITY_NAME,
             string $ENTITY_FILE_LOC,
             string $ENTITY_FILE_NAME,
             array $ENTITY_SCHEMA,
-            array $ALLOWED_OPERATIONS
+            array $ALLOWED_OPERATIONS,
+            PDO $pdo
         ) {
             $this->ENTITY_NAME = $ENTITY_NAME;
             $this->ENTITY_FILE_LOC = $ENTITY_FILE_LOC;
-            $this->ENTITY_FILE_NAME = $ENTITY_FILE_NAME;
+            $this->ENTITY_TABLE_NAME = $ENTITY_FILE_NAME;
             $this->ENTITY_FILE_PATH = $ENTITY_FILE_LOC . $ENTITY_FILE_NAME;
             $this->ENTITY_SCHEMA = $ENTITY_SCHEMA;
             $this->ALLOWED_OPERATIONS = $ALLOWED_OPERATIONS;
+            $this->pdo = $pdo;
         }
 
         /** Função para obter os dados do ficheiro da entidade, valida a permissão.
@@ -48,20 +49,14 @@
             return $this->getEntityDataInternal();
         }
 
-        /** Função para obter os dados do ficheiro da entidade, sem validar permissão.
+        /** Função para obter os da entidade, sem validar permissão.
          * @return array
-         * @throws FileReadException
          */
         private function getEntityDataInternal() : array
         {
-            $file_contents = file_get_contents($this->ENTITY_FILE_PATH);
-            $entityArr = json_decode($file_contents, true);
-
-            if ($entityArr === null) {
-                throw new FileReadException($this->ENTITY_FILE_NAME);
-            }
-
-            return $entityArr;
+            $queryString = "SELECT * FROM " . $this->ENTITY_TABLE_NAME;
+            $stmt = $this->pdo->query($queryString, PDO::FETCH_ASSOC);
+            return $stmt->fetchAll();
         }
 
         /** Função para adicionar um registo da entidade ao ficheiro.
@@ -152,7 +147,7 @@
             $encodedArray = json_encode(array_values($entityArray));
             $success = file_put_contents($this->ENTITY_FILE_PATH, $encodedArray);
             if (!$success) {
-                throw new FileWriteException($this->ENTITY_FILE_NAME);
+                throw new FileWriteException($this->ENTITY_TABLE_NAME);
             }
         }
 

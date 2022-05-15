@@ -2,7 +2,6 @@
 
     include_once $_SERVER['DOCUMENT_ROOT'].'/vendor/autoload.php';
 
-    include_once $_SERVER['DOCUMENT_ROOT'].'/Auth/UserManager.php';
     include_once $_SERVER['DOCUMENT_ROOT'].'/Auth/exceptions/UserNotFoundException.php';
     include_once $_SERVER['DOCUMENT_ROOT'].'/Auth/exceptions/WrongCredentialsException.php';
 
@@ -14,30 +13,26 @@
         public static string $JWT_KEY = 'chave_generica';
         public static string $JWT_ALG = 'HS256';
 
-        /**
-         * @param array $user Utilizador
-         * @param $password string para efetuar login
+        /** Função para efetuar login
+         * @param $pdo PDO PDO do controller
+         * @param $username string username
+         * @param $password string password
          * @throws WrongCredentialsException
          */
-        public static function login(array $user, string $password) {
-            if ($user['password'] != $password) {
+        public static function login(PDO $pdo, string $username, string $password) {
+            $hashedPW = md5($password);
+            // Esta query vai devolver 1 se encontrar um utilizador
+            $queryString = "SELECT COUNT(1) FROM user 
+                                    WHERE username = '" . $username . "' " .
+                                    " AND password = '" .$hashedPW . "'";
+
+            $stmt = $pdo->query($queryString, PDO::FETCH_NUM);
+
+            // A query apenas vai receber registos de corresponder o utilizador e password.
+            if ($stmt->fetch()[0] === '0') {
                 throw new WrongCredentialsException();
             }
-        }
 
-        /**
-         * @throws UserNotFoundException
-         * @throws FileReadException
-         */
-        public static function findUser(array $users, string $username): int
-        {
-            foreach ($users as $key => $user) {
-               if ($user['username'] == $username) {
-                   return $key;
-               }
-            }
-
-            throw new UserNotFoundException($username);
         }
 
         /** Função para gerar um token twt

@@ -1,13 +1,14 @@
 <?php
 
 include_once $_SERVER['DOCUMENT_ROOT'] . '/utils/constants.php';
+include_once $_SERVER['DOCUMENT_ROOT'] . '/utils/Manager/Manager.php';
 include_once $_SERVER['DOCUMENT_ROOT'] . '/Permissions/PermissionsUtils.php';
 include_once $_SERVER['DOCUMENT_ROOT'] . '/Permissions/exceptions/DuplicatePermissionException.php';
 
 class PermissionsManager extends Manager
 {
 
-    public function __construct()
+    public function __construct(PDO $pdo)
     {
         $PERMISSIONS_FILE_LOC = ROOTPATH . '/files/';
         $PERMISSIONS_FILE_NAME = 'permissoes.json';
@@ -25,7 +26,8 @@ class PermissionsManager extends Manager
             $PERMISSIONS_FILE_LOC,
             $PERMISSIONS_FILE_NAME,
             $PERMISSIONS_SCHEMA,
-            $ALLOWED_OPERATIONS);
+            $ALLOWED_OPERATIONS,
+            $pdo);
     }
 
     /** Função para obter um array de permissões

@@ -9,6 +9,9 @@
     include_once $_SERVER['DOCUMENT_ROOT'].'/utils/exceptions/InvalidTokenException.php';
     include_once $_SERVER['DOCUMENT_ROOT'].'/utils/exceptions/MissingTokenException.php';
 
+    include_once $_SERVER['DOCUMENT_ROOT'].'/utils/constants.php';
+    include_once $_SERVER['DOCUMENT_ROOT'].'/utils/DB.php';
+
     abstract class Controller {
 
         // Configurações
@@ -21,6 +24,9 @@
         protected array $URL_PARAMS;        // Constante dos parametros de URL
         protected array $REQ_BODY;          // Constante do corpo do pedido em ocorrência
         protected array $REQ_HEADERS;       // Constante dos cabeçalhos do pedido em ocorrência
+
+        // Conecção com a BD
+        protected PDO $pdo;
 
         /**
          * @param array $ALLOWED_METHODS Métodos http permitidos
@@ -53,12 +59,15 @@
          * @return void
          */
         public function handleRequest() {
-            // Configurar cabeçalhos, tratar do cors
+            // Configurar cabeçalhos, iniciar conecção com a base de dados, tratar do cors
             requestConfig();
 
             // Validar pedido, no nível de autorizações e formato
             try {
                 self::validateRequest();
+                // Iniciar conecção com a base de dados
+                $this->pdo = DB::connect();
+
             } catch (InvalidTokenException) {
                 notAuthrorizedResponse();
                 return;
@@ -77,6 +86,8 @@
             } catch (HttpRequestMethodNotAllowedException) {
                 methodNotAvailable($_SERVER['REQUEST_METHOD']);
                 return;
+            } catch (DBConnectionException $e) {
+                internalErrorResponse($e->getMessage());
             }
 
             // Continuar o tratamento do pedido, este método é definido nas subclasses.
@@ -123,5 +134,6 @@
         /** Função para fazer o meapeamento do tratamento do pedido consoante o seu método.
          */
         protected abstract function routeRequest();
+
     }
 

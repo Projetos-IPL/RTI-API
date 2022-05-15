@@ -15,11 +15,12 @@ include_once $_SERVER['DOCUMENT_ROOT'] . '/People/PeopleUtils.php';
 class PeopleManager extends Manager
 {
 
-    public function __construct()
+    public function __construct(PDO $pdo)
     {
         $PEOPLE_FILE_LOC = ROOTPATH . '/files/';
-        $PEOPLE_FILE_NAME = 'pessoas.json';
+        $PEOPLE_TABLE_NAME = 'person';
         $PEOPLE_SCHEMA = array('rfid', 'primNome', 'ultNome');
+
         $ALLOWED_OPERATIONS = array(
             ManagerUtils::READ,
             ManagerUtils::WRITE,
@@ -30,9 +31,10 @@ class PeopleManager extends Manager
         parent::__construct(
             'PERSON',
             $PEOPLE_FILE_LOC,
-            $PEOPLE_FILE_NAME,
+            $PEOPLE_TABLE_NAME,
             $PEOPLE_SCHEMA,
-            $ALLOWED_OPERATIONS);
+            $ALLOWED_OPERATIONS,
+            $pdo);
     }
 
     /** Função para obter um array de pessoas

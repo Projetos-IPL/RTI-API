@@ -9,12 +9,9 @@
     include_once $_SERVER['DOCUMENT_ROOT'].'/utils/Manager/exceptions/OperationNotAllowedException.php';
 
     include_once $_SERVER['DOCUMENT_ROOT'].'/Auth/AuthUtils.php';
-    include_once $_SERVER['DOCUMENT_ROOT'].'/Auth/UserManager.php';
 
 
     class AuthController extends Controller {
-
-        private UserManager $userManager;
 
         public function __construct() {
             $ALLOWED_METHODS = array (
@@ -34,8 +31,6 @@
             $REQ_HEADER_SPEC = array(
                 GET => X_AUTH_TOKEN
             );
-
-            $this->userManager = new UserManager();
 
             parent::__construct($ALLOWED_METHODS, $AUTHORIZATION_MAP, $REQ_BODY_SPEC, $REQ_HEADER_SPEC);
         }
@@ -69,9 +64,7 @@
         private function postHandler() {
             try {
                 // Efetuar login
-                $userIndex = AuthUtils::findUser($this->userManager->getEntityData(), $this->REQ_BODY['username']);
-                $usersArr = $this->userManager->getEntityData();
-                AuthUtils::login($usersArr[$userIndex], $this->REQ_BODY['password']);
+                AuthUtils::login($this->pdo, $this->REQ_BODY['username'], $this->REQ_BODY['password']);
 
                 // Enviar resposta
                 http_response_code(200);
@@ -81,10 +74,8 @@
                     'timestamp' => (new DateTime)->getTimeStamp()
                 ));
                 echo $res_body;
-            } catch (UserNotFoundException | WrongCredentialsException) {
+            } catch (WrongCredentialsException) {
                 notAuthrorizedResponse();
-            } catch (FileReadException | OperationNotAllowedException $e) {
-                internalErrorResponse($e->getMessage());
             }
         }
     }

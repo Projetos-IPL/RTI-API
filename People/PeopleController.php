@@ -46,8 +46,6 @@
 
             $ALLOWED_URL_PARAMS = ['rfid'];
 
-            $this->peopleManager = new PeopleManager();
-
             parent::__construct($ALLOWED_METHODS,
                                 $AUTHORIZATION_MAP,
                                 $REQ_BODY_SPEC,
@@ -57,6 +55,9 @@
 
         protected function routeRequest()
         {
+
+            $this->peopleManager = new PeopleManager($this->pdo);
+
             switch ($_SERVER['REQUEST_METHOD']) {
                 case GET:
                     self::getHandler();
