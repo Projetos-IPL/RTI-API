@@ -77,11 +77,16 @@ class PermissionsController extends Controller
                 // Se for passado um parâmetro de url 'rfid', devolver permissão por rfid
                 if (isset($this->URL_PARAMS['rfid'])) {
                     $permissionArr = $this->permissionsManager->getPermissionByRFID($this->URL_PARAMS['rfid']);
+                    if (!$permissionArr) {
+                        throw new PermissionNotFoundException($this->URL_PARAMS['rfid']);
+                    }
                 }
             }
 
             $permissionsJSONEncoded = json_encode($permissionArr);
             successfulDataFetchResponse($permissionsJSONEncoded);
+        } catch (PermissionNotFoundException $e){
+            noContentResponse($e->getMessage());
         } catch (Exception $e) {
             internalErrorResponse($e->getMessage());
         }

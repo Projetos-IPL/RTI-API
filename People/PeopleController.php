@@ -119,7 +119,7 @@ class PeopleController extends Controller
         // Tentar atualizar pessoa e responder com o resultado
         try {
             $this->peopleManager->updatePersonRFID($this->REQ_BODY['rfid'], $this->REQ_BODY['newRfid']);
-            objectWrittenSuccessfullyResponse($this->REQ_BODY['newRfid']);
+            objectWrittenSuccessfullyResponse(array("rfid" => $this->REQ_BODY['newRfid']));
         } catch (DuplicateRFIDException $e) {
             unprocessableEntityResponse($e->getMessage());
         } catch (Exception $e) {
@@ -132,7 +132,7 @@ class PeopleController extends Controller
         // Tentar apagar pessoa e responder com o resultado
         try {
             $this->peopleManager->deletePerson($this->REQ_BODY['rfid']);
-            objectDeletedSuccessfullyResponse($this->REQ_BODY);
+            objectDeletedSuccessfullyResponse(array("rfid" => $this->REQ_BODY));
         } catch (PersonNotFoundException $e) {
             unprocessableEntityResponse($e->getMessage());
         } catch (Exception $e) {

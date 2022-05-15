@@ -5,12 +5,7 @@ include_once $_SERVER['DOCUMENT_ROOT'] . '/utils/exceptions/DataSchemaException.
 include_once $_SERVER['DOCUMENT_ROOT'] . '/utils/exceptions/FileReadException.php';
 include_once $_SERVER['DOCUMENT_ROOT'] . '/utils/exceptions/FileWriteException.php';
 
-include_once $_SERVER['DOCUMENT_ROOT'] . '/Permissions/PermissionsManager.php';
-
-include_once $_SERVER['DOCUMENT_ROOT'] . '/EntranceRecords/EntranceRecordsManager.php';
-
 include_once $_SERVER['DOCUMENT_ROOT'] . '/People/exceptions/DuplicateRFIDException.php';
-include_once $_SERVER['DOCUMENT_ROOT'] . '/People/PeopleUtils.php';
 
 class PeopleManager
 {
