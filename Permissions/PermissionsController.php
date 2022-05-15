@@ -5,6 +5,8 @@ include_once $_SERVER['DOCUMENT_ROOT'] . '/utils/commonResponses.php';
 include_once $_SERVER['DOCUMENT_ROOT'] . '/utils/requestConfig.php';
 include_once $_SERVER['DOCUMENT_ROOT'] . '/utils/constants.php';
 include_once $_SERVER['DOCUMENT_ROOT'] . '/Permissions/PermissionsManager.php';
+include_once $_SERVER['DOCUMENT_ROOT'] . '/Permissions/exceptions/DuplicatePermissionException.php';
+include_once $_SERVER['DOCUMENT_ROOT'] . '/Permissions/exceptions/PermissionNotFoundException.php';
 
 
 class PermissionsController extends Controller
@@ -33,13 +35,20 @@ class PermissionsController extends Controller
             DELETE => X_AUTH_TOKEN,
         );
 
-        $this->permissionsManager = new PermissionsManager();
+        $ALLOWED_URL_PARAMS = ['rfid'];
 
-        parent::__construct($ALLOWED_METHODS, $AUTHORIZATION_MAP, $REQ_BODY_SPEC, $REQ_HEADER_SPEC);
+        parent::__construct($ALLOWED_METHODS,
+            $AUTHORIZATION_MAP,
+            $REQ_BODY_SPEC,
+            REQ_HEADER_SPEC: $REQ_HEADER_SPEC,
+            ALLOWED_URL_PARAMS: $ALLOWED_URL_PARAMS);
     }
-    
+
     protected function routeRequest()
     {
+
+        $this->permissionsManager = new PermissionsManager($this->pdo);
+
         switch ($_SERVER['REQUEST_METHOD']) {
             case GET:
                 $this->getHandler();
@@ -59,10 +68,21 @@ class PermissionsController extends Controller
     private function getHandler()
     {
         try {
-            $permissionArr = $this->permissionsManager->getPermissions();
-            $permissionsJSONEncoded = json_encode(array_values($permissionArr));
+            $permissionArr = array();
+
+            // Se não forem passados parametros de url fazer consulta generica
+            if (count($this->URL_PARAMS) == 0) {
+                $permissionArr = $this->permissionsManager->getPermissions();
+            } else {
+                // Se for passado um parâmetro de url 'rfid', devolver permissão por rfid
+                if (isset($this->URL_PARAMS['rfid'])) {
+                    $permissionArr = $this->permissionsManager->getPermissionByRFID($this->URL_PARAMS['rfid']);
+                }
+            }
+
+            $permissionsJSONEncoded = json_encode($permissionArr);
             successfulDataFetchResponse($permissionsJSONEncoded);
-        } catch (FileReadException|OperationNotAllowedException $e) {
+        } catch (Exception $e) {
             internalErrorResponse($e->getMessage());
         }
     }
@@ -71,12 +91,12 @@ class PermissionsController extends Controller
     {
         // Tentar adicionar permissão
         try {
-            $id = $this->permissionsManager->addPermission($this->REQ_BODY['rfid']);
-            objectWrittenSuccessfullyResponse(array('id' => $id, 'rfid' => $this->REQ_BODY));
-        } catch (DataSchemaException|FileReadException|FileWriteException|OperationNotAllowedException $e) {
-            internalErrorResponse($e->getMessage());
-        } catch (DuplicatePermissionException|PersonNotFoundException $e) {
+            $this->permissionsManager->addPermission($this->REQ_BODY['rfid']);
+            objectWrittenSuccessfullyResponse($this->REQ_BODY);
+        } catch (DuplicatePermissionException $e) {
             unprocessableEntityResponse($e->getMessage());
+        } catch (Exception $e) {
+            internalErrorResponse($e->getMessage());
         }
     }
 
@@ -88,7 +108,7 @@ class PermissionsController extends Controller
             objectDeletedSuccessfullyResponse($this->REQ_BODY);
         } catch (PermissionNotFoundException $e) {
             unprocessableEntityResponse($e->getMessage());
-        } catch (FileReadException|FileWriteException|DataSchemaException|OperationNotAllowedException $e) {
+        } catch (Exception $e) {
             internalErrorResponse($e->getMessage());
         }
     }

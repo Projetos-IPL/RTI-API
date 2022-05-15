@@ -2,108 +2,93 @@
 
 include_once $_SERVER['DOCUMENT_ROOT'] . '/utils/constants.php';
 include_once $_SERVER['DOCUMENT_ROOT'] . '/utils/Manager/Manager.php';
-include_once $_SERVER['DOCUMENT_ROOT'] . '/Permissions/PermissionsUtils.php';
 include_once $_SERVER['DOCUMENT_ROOT'] . '/Permissions/exceptions/DuplicatePermissionException.php';
 
-class PermissionsManager extends Manager
+class PermissionsManager
 {
+
+    public string $PERMISSION_TABLE_NAME = 'permission';
+    public array $PERMISSION_SCHEMA = array('id', 'rfid');
+    private PDO $pdo;
 
     public function __construct(PDO $pdo)
     {
-        $PERMISSIONS_FILE_LOC = ROOTPATH . '/files/';
-        $PERMISSIONS_FILE_NAME = 'permissoes.json';
-        $PERMISSIONS_SCHEMA = array('id', 'rfid');
-
-        $ALLOWED_OPERATIONS = array(
-            ManagerUtils::READ,
-            ManagerUtils::WRITE,
-            ManagerUtils::UPDATE,
-            ManagerUtils::DELETE
-        );
-
-        parent::__construct(
-            'PERMISSION',
-            $PERMISSIONS_FILE_LOC,
-            $PERMISSIONS_FILE_NAME,
-            $PERMISSIONS_SCHEMA,
-            $ALLOWED_OPERATIONS,
-            $pdo);
+        $this->pdo = $pdo;
     }
 
     /** Função para obter um array de permissões
      * @return array Associative Array de permissões
-     * @throws FileReadException
-     * @throws OperationNotAllowedException
+
      */
     public function getPermissions(): array
     {
-        return $this->getEntityData();
+        $queryString = "SELECT * FROM " . $this->PERMISSION_TABLE_NAME;
+        $stmt = $this->pdo->query($queryString, PDO::FETCH_ASSOC);
+        return $stmt->fetchAll();
+    }
+
+    /** Função para obter uma permissão por rfid
+     * @param string $rfid
+     * @return array | false Array de pessoas ou falso se não forem encontrados dados
+     */
+    public function getPermissionByRFID(string $rfid) : array | false
+    {
+        $queryString = "SELECT * FROM " . $this->PERMISSION_TABLE_NAME . " WHERE rfid = '" . $rfid . "'";
+        $stmt = $this->pdo->query($queryString, PDO::FETCH_ASSOC);
+        return $stmt->fetch();
     }
 
     /** Função para adicionar uma nova permissão
      * @param string $rfid rfid da nova permissão
-     * @return int Id da permissão criada
      * @throws DuplicatePermissionException
-     * @throws DataSchemaException
-     * @throws FileReadException
-     * @throws FileWriteException
-     * @throws PersonNotFoundException
-     * @throws OperationNotAllowedException
+     * @throws Exception
      */
-    public function addPermission(string $rfid): int
+    public function addPermission(string $rfid)
     {
-
-        $permissionsArr = self::getPermissions();
-
         // Validar nova permissão
-        if (!PermissionsUtils::validateNewPermission($permissionsArr, $rfid)) {
+        if (self::getPermissionByRFID($rfid)) {
             throw new DuplicatePermissionException($rfid);
         }
 
-        // Obter id para a permissão
-        $id = PermissionsUtils::generateNewId($permissionsArr);
-
-        $newPermission = array("id" => $id, "rfid" => $rfid);
-
         // Adicionar permissão
-        $this->addEntity($newPermission);
-        return $id;
+        $sql = "INSERT INTO " . $this->PERMISSION_TABLE_NAME . " (rfid)
+                    VALUES (?)";
+
+        $stmt = $this->pdo->prepare($sql);
+
+        try {
+            $this->pdo->beginTransaction();
+            $stmt->execute(array($rfid));
+            $this->pdo->commit();
+        } catch (Exception $e) {
+            $this->pdo->rollBack();
+            throw $e;
+        }
+
     }
 
     /** Função para apagar uma permissão
-     * @throws DataSchemaException
-     * @throws FileWriteException
-     * @throws FileReadException
      * @throws PermissionNotFoundException
-     * @throws EntityNotFoundException
-     * @throws OperationNotAllowedException
+     * @throws Exception
      */
     public function deletePermission(string $rfid)
     {
-        $permissionsArr = self::getPermissions();
-        $index = PermissionsUtils::getPermissionIndex($permissionsArr, $rfid);
-        $this->deleteEntity($permissionsArr[$index]);
+        // Verificar se permissão existe
+        if (!self::getPermissionByRFID($rfid)) {
+            throw new PermissionNotFoundException($rfid);
+        }
+
+        // Apagar registo
+        $sql = "DELETE FROM " . $this->PERMISSION_TABLE_NAME . " WHERE rfid = (?)";
+        $stmt = $this->pdo->prepare($sql);
+
+        try {
+            $this->pdo->beginTransaction();
+            $stmt->execute(array($rfid));
+            $this->pdo->commit();
+        } catch (Exception $e) {
+            $this->pdo->rollBack();
+            throw $e;
+        }
     }
-
-    /** Função para atualizar uma permissão
-     * @throws DataSchemaException
-     * @throws FileReadException
-     * @throws PermissionNotFoundException
-     * @throws FileWriteException
-     * @throws OperationNotAllowedException
-     * @throws EntityNotFoundException
-     */
-    public function updatePermission(string $rfid, string $newRfid)
-    {
-        $permissionsArr = self::getPermissions();
-        $index = PermissionsUtils::getPermissionIndex($permissionsArr, $rfid);
-        $oldPermission = $permissionsArr[$index];
-        $newPermission = array(
-            "id"   =>$oldPermission['id'],
-            "rfid" =>$rfid
-        );
-        $this->updateEntity($oldPermission, $newPermission);
-    }
-
-
 }

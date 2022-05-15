@@ -112,7 +112,6 @@ class PeopleManager
      */
     public function deletePerson(string $rfid)
     {
-
         // Verificar se pessoa existe
         if (!self::getPersonByRFID($rfid)) {
             throw new PersonNotFoundException($rfid);
