@@ -32,8 +32,8 @@
             );
 
             $REQ_BODY_SPEC = array(
-                POST => ['primNome', 'ultNome', 'rfid'],
-                PUT => ['rfid', "data" => ["primNome", "ultNome", "rfid"]],
+                POST => ['first_name', 'last_name', 'rfid'],
+                PUT => ['rfid', 'newRfid'],
                 DELETE => ['rfid']
             );
 
@@ -80,17 +80,21 @@
 
         private function getHandler() {
             try {
-                $peopleArr = $this->peopleManager->getPeople();
+                $peopleArr = array();
 
-                // Se for passado um parâmetro de url 'rfid', filtrar lista por esse rfid
-                if (count($this->URL_PARAMS) != 0 && isset($this->URL_PARAMS['rfid'])) {
-                    $index = PeopleUtils::getPersonIndex($peopleArr, $this->URL_PARAMS['rfid']);
-                    $peopleArr = array($peopleArr[$index]);
+                // Se não forem passados parametros de url fazer consulta generica.
+                if (count($this->URL_PARAMS) == 0 ) {
+                    $peopleArr = $this->peopleManager->getPeople();
+                } else {
+                    // Se for passado um parâmetro de url 'rfid', devolver pessoa por rfid
+                    if (isset($this->URL_PARAMS['rfid'])) {
+                        $peopleArr = $this->peopleManager->getPersonByRFID($this->URL_PARAMS['rfid']);
+                    }
                 }
 
-                $peopleJSONEncoded = json_encode(array_values($peopleArr));
+                $peopleJSONEncoded = json_encode($peopleArr);
                 successfulDataFetchResponse($peopleJSONEncoded);
-            } catch (FileReadException | OperationNotAllowedException $e) {
+            } catch (OperationNotAllowedException $e) {
                 internalErrorResponse($e->getMessage());
             }
         }
@@ -102,7 +106,7 @@
                 objectWrittenSuccessfullyResponse($this->REQ_BODY);
             } catch (DuplicateRFIDException $e) {
                 unprocessableEntityResponse($e->getMessage());
-            } catch (DataSchemaException | FileWriteException | FileReadException $e) {
+            } catch (DataSchemaException|Exception $e) {
                 internalErrorResponse($e->getMessage());
             }
         }
@@ -110,12 +114,12 @@
         private function putHandler() {
             // Tentar atualizar pessoa e responder com o resultado
             try {
-                $this->peopleManager->updatePerson($this->REQ_BODY['rfid'], $this->REQ_BODY['data']);
-                objectWrittenSuccessfullyResponse($this->REQ_BODY['data']);
-            } catch (FileReadException | FileWriteException | DataSchemaException$e) {
-                internalErrorResponse($e->getMessage());
-            } catch (PersonNotFoundException | NameUpdateException | DuplicateRFIDException $e) {
+                $this->peopleManager->updatePersonRFID($this->REQ_BODY['rfid'], $this->REQ_BODY['newRfid']);
+                objectWrittenSuccessfullyResponse($this->REQ_BODY['newRfid']);
+            } catch (DuplicateRFIDException $e) {
                 unprocessableEntityResponse($e->getMessage());
+            } catch (Exception $e) {
+                internalErrorResponse($e->getMessage());
             }
         }
 
@@ -126,7 +130,7 @@
                 objectDeletedSuccessfullyResponse($this->REQ_BODY);
             } catch (PersonNotFoundException $e) {
                 unprocessableEntityResponse($e->getMessage());
-            } catch (DataSchemaException | FileReadException | FileWriteException $e) {
+            } catch (Exception $e) {
                 internalErrorResponse($e->getMessage());
             }
         }

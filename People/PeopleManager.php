@@ -12,127 +12,123 @@ include_once $_SERVER['DOCUMENT_ROOT'] . '/EntranceRecords/EntranceRecordsManage
 include_once $_SERVER['DOCUMENT_ROOT'] . '/People/exceptions/DuplicateRFIDException.php';
 include_once $_SERVER['DOCUMENT_ROOT'] . '/People/PeopleUtils.php';
 
-class PeopleManager extends Manager
+class PeopleManager
 {
+    public string $PEOPLE_TABLE_NAME = 'person';
+    private array $PEOPLE_SCHEMA = array('rfid', 'first_name', 'last_name');
+    private PDO $pdo;
 
     public function __construct(PDO $pdo)
     {
-        $PEOPLE_FILE_LOC = ROOTPATH . '/files/';
-        $PEOPLE_TABLE_NAME = 'person';
-        $PEOPLE_SCHEMA = array('rfid', 'primNome', 'ultNome');
-
-        $ALLOWED_OPERATIONS = array(
-            ManagerUtils::READ,
-            ManagerUtils::WRITE,
-            ManagerUtils::UPDATE,
-            ManagerUtils::DELETE
-        );
-
-        parent::__construct(
-            'PERSON',
-            $PEOPLE_FILE_LOC,
-            $PEOPLE_TABLE_NAME,
-            $PEOPLE_SCHEMA,
-            $ALLOWED_OPERATIONS,
-            $pdo);
+        $this->pdo = $pdo;
     }
 
     /** Função para obter um array de pessoas
-     * @throws FileReadException
-     * @throws OperationNotAllowedException
+     * @return array Array de pessoas
      */
     public function getPeople(): array
     {
-        return $this->getEntityData();
+        $queryString = "SELECT * FROM " . $this->PEOPLE_TABLE_NAME;
+        $stmt = $this->pdo->query($queryString, PDO::FETCH_ASSOC);
+        return $stmt->fetchAll();
     }
+
+
+    /** Função para obter uma pessoa por rfid
+     * @param string $rfid
+     * @return array | false Array de pessoas ou falso se não forem encontrados dados
+     */
+    public function getPersonByRFID(string $rfid) : array | false
+    {
+        $queryString = "SELECT * FROM " . $this->PEOPLE_TABLE_NAME . " WHERE rfid = '" . $rfid . "'";
+        $stmt = $this->pdo->query($queryString, PDO::FETCH_ASSOC);
+        return $stmt->fetch();
+    }
+
 
     /** Função para adicionar o registo de uma pessoa
      * @throws DuplicateRFIDException
      * @throws DataSchemaException
-     * @throws FileReadException
-     * @throws FileWriteException
-     * @throws OperationNotAllowedException
+     * @throws Exception
      */
     public function addPerson(array $person)
     {
+        if (!ManagerUtils::validateEntity($this->PEOPLE_SCHEMA, $person)) {
+            throw new DataSchemaException();
+        }
 
         // Verificar unicidade do RFID
-        if (!PeopleUtils::validateNewRFID($this->getPeople(), $person['rfid'])) {
+        if (self::getPersonByRFID($person['rfid'])) {
             throw new DuplicateRFIDException('O rfid: ' . $person['rfid'] . ' já está associado a uma pessoa.');
         }
 
-        $this->addEntity($person);
+        $sql = "INSERT INTO " . $this->PEOPLE_TABLE_NAME . " (rfid, first_name, last_name) 
+                    VALUES (?, ?, ?)";
+
+        $values = [$person['rfid'], $person['first_name'], $person['last_name']];
+
+        $stmt = $this->pdo->prepare($sql);
+
+        try {
+            $this->pdo->beginTransaction();
+            $stmt->execute($values);
+            $this->pdo->commit();
+        } catch (Exception $e) {
+            $this->pdo->rollBack();
+            throw $e;
+        }
+
+
     }
 
-    /** Função para atualizar o registo de uma pessoa
-     * @throws DataSchemaException
-     * @throws NameUpdateException
+    /** Função para atualizar o rfid de uma pessoa
      * @throws DuplicateRFIDException
-     * @throws FileReadException
-     * @throws PersonNotFoundException
-     * @throws FileWriteException
-     * @throws OperationNotAllowedException
-     * @throws EntityNotFoundException
+     * @throws Exception
      */
-    public function updatePerson(string $rfid, array $newPersonData)
+    public function updatePersonRFID(string $rfid, string $newRfid)
     {
-        $peopleArr = $this->getPeople();
-        $personIndex = PeopleUtils::getPersonIndex($peopleArr, $rfid);
-
-        // Validar esquema da pessoa
-        if (!PeopleUtils::validatePersonSchema($newPersonData)) {
-            throw new DataSchemaException("Tentativa de atualizar pessoa com um esquema incorreto.");
-        }
-
         // Verificar unicidade do novo rfid
-        if (!PeopleUtils::validateNewRFID($this->getPeople(), $newPersonData['rfid'])) {
-            throw new DuplicateRFIDException('O rfid: ' . $newPersonData['rfid'] . ' já está associado a uma pessoa.');
+        if (self::getPersonByRFID($newRfid)) {
+            throw new DuplicateRFIDException('O rfid: ' . $newRfid . ' já está associado a uma pessoa.');
         }
-
-        // Validar restrições de alteração dos dados de pessoas
-        $oldPersonData = $peopleArr[$personIndex];
-
-        if ($oldPersonData['primNome'] != $newPersonData['primNome'] ||
-            $oldPersonData['ultNome'] != $newPersonData['ultNome']) {
-            throw new NameUpdateException($rfid);
-        }
-
-        // Atualizar permissões associadas à pessoa
-        try {
-            (new PermissionsManager())->updatePermission($rfid, $newPersonData['rfid']);
-        } catch (PermissionNotFoundException) {
-        }
-
-        // Atualizar registos de entrada associados à pessoa
-        (new EntranceRecordsManager())->updateEntranceRecordsRFID($rfid, $newPersonData['rfid']);
 
         // Guardar alterações
-        $this->updateEntity($oldPersonData, $newPersonData);
+        $sql = "UPDATE " . $this->PEOPLE_TABLE_NAME . " SET rfid = (?) WHERE rfid = (?)";
+        $stmt = $this->pdo->prepare($sql);
+
+        try {
+            $this->pdo->beginTransaction();
+            $stmt->execute(array($newRfid, $rfid));
+            $this->pdo->commit();
+        } catch (Exception $e) {
+            $this->pdo->rollBack();
+            throw $e;
+        }
     }
 
-    /**
+    /** Função para apagar o registo de uma pessoa
      * @throws PersonNotFoundException
-     * @throws DataSchemaException
-     * @throws FileWriteException
-     * @throws FileReadException
-     * @throws OperationNotAllowedException
-     * @throws EntityNotFoundException
+     * @throws Exception
      */
     public function deletePerson(string $rfid)
     {
-        $peopleArr = $this->getEntityData();
-        $index = PeopleUtils::getPersonIndex($peopleArr, $rfid);
-        $person = $peopleArr[$index];
 
-        // Apagar permissões associadas à pessoa
-        try {
-            (new PermissionsManager())->deletePermission($rfid);
-        } catch (PermissionNotFoundException) {
+        // Verificar se pessoa existe
+        if (!self::getPersonByRFID($rfid)) {
+            throw new PersonNotFoundException($rfid);
         }
 
-        // Apagar registos associados à pessoa
-        (new EntranceRecordsManager())->deleteEntranceRecords($rfid);
+        // Apagar registo
+        $sql = "DELETE FROM " . $this->PEOPLE_TABLE_NAME . " WHERE rfid = (?)";
+        $stmt = $this->pdo->prepare($sql);
 
-        $this->deleteEntity($person);
+        try {
+            $this->pdo->beginTransaction();
+            $stmt->execute(array($rfid));
+            $this->pdo->commit();
+        } catch (Exception $e) {
+            $this->pdo->rollBack();
+            throw $e;
+        }
     }
 }

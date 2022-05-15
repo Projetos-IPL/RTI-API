@@ -37,7 +37,6 @@
         }
 
         /** Função para obter os dados do ficheiro da entidade, valida a permissão.
-         * @throws FileReadException
          * @throws OperationNotAllowedException
          */
         public function getEntityData() : array
@@ -59,10 +58,8 @@
             return $stmt->fetchAll();
         }
 
-        /** Função para adicionar um registo da entidade ao ficheiro.
+        /** Função para adicionar um registo da entidade.
          * @throws DataSchemaException
-         * @throws FileReadException
-         * @throws FileWriteException
          * @throws OperationNotAllowedException
          */
         protected function addEntity(array $entity) {
@@ -74,9 +71,17 @@
                 throw new DataSchemaException();
             }
 
-            $entityArr = self::getEntityDataInternal();
-            $entityArr[] = $entity;
-            self::overwriteEntityFile($entityArr);
+            // Ordenar schema e entity para construir o comando SQL
+            ksort($entity);  // ksort porque $entity é um assoc. array
+            sort($this->ENTITY_SCHEMA);
+
+            $sql = "INSERT INTO " . $this->ENTITY_TABLE_NAME . "(". implode(",", $this->ENTITY_SCHEMA) . ")" .
+                   "VALUES ('" . implode("','", $entity) . "')";
+
+            $stmt = $this->pdo->prepare($sql);
+            $this->pdo->beginTransaction();
+            $stmt->execute();
+            $this->pdo->commit();
         }
 
         /** Função para atualizar um registo da entidade
