@@ -88,6 +88,7 @@
                 return;
             } catch (DBConnectionException $e) {
                 internalErrorResponse($e->getMessage());
+                return;
             }
 
             // Continuar o tratamento do pedido, este método é definido nas subclasses.

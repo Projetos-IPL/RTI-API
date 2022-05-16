@@ -35,8 +35,6 @@ class EntranceRecordsController extends Controller
 
         $ALLOWED_URL_PARAMS = ['rfid', 'access', 'date'];
 
-        $this->entranceRecordsManager = new EntranceRecordsManager();
-
         parent::__construct($ALLOWED_METHODS,
                             $AUTHORIZATION_MAP,
                             $REQ_BODY_SPEC,
@@ -46,6 +44,9 @@ class EntranceRecordsController extends Controller
 
     protected function routeRequest()
     {
+
+        $this->entranceRecordsManager = new EntranceRecordsManager();
+
         switch ($_SERVER['REQUEST_METHOD']) {
             case GET:
                 self::getHandler();
@@ -61,13 +62,18 @@ class EntranceRecordsController extends Controller
     public function getHandler()
     {
         try {
-            $recordsArr = $this->entranceRecordsManager->getEntranceRecords();
+            $recordsArr = array();
+
+            $this->entranceRecordsManager->getEntranceRecords();
 
             if (count($this->URL_PARAMS) != 0) {
 
                 // Filtrar por rfid
                 if (isset($this->URL_PARAMS['rfid'])) {
                     $recordsArr = EntranceRecordsUtils::getEntranceRecordsByRFID($recordsArr, $this->URL_PARAMS['rfid']);
+                    if (!$recordsArr) {
+                        throw new EntranceRecordNotFoundException($this->URL_PARAMS['rfid']);
+                    }
                 }
 
                 // Filtrar por access
@@ -86,9 +92,9 @@ class EntranceRecordsController extends Controller
             $recordsJSONEncoded = json_encode(array_values($recordsArr));
             successfulDataFetchResponse($recordsJSONEncoded);
 
-        } catch (EntranceRecordNotFoundException) {
-            noContentResponse();
-        } catch (FileReadException|OperationNotAllowedException $e) {
+        } catch (EntranceRecordNotFoundException $e) {
+            noContentResponse($e->getMessage());
+        } catch (Exception $e) {
             internalErrorResponse($e->getMessage());
         }
     }
@@ -97,11 +103,11 @@ class EntranceRecordsController extends Controller
     {
         // Tentar adicionar registo
         try {
-            $newRecord = $this->entranceRecordsManager->createEntranceRecord($this->REQ_BODY['rfid']);
-            objectWrittenSuccessfullyResponse($newRecord);
+            $this->entranceRecordsManager->createEntranceRecord($this->REQ_BODY['rfid']);
+            objectWrittenSuccessfullyResponse($this->entranceRecordsManager->getEntranceRecordsByRFID($this->REQ_BODY['rfid']));
         } catch (PersonNotFoundException $e) {
             unprocessableEntityResponse($e->getMessage());
-        } catch (DataSchemaException|FileReadException|FileWriteException|OperationNotAllowedException $e) {
+        } catch (Exception $e) {
             internalErrorResponse($e->getMessage());
         }
     }

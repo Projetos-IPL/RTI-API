@@ -20,8 +20,8 @@ class DB
         try {
             $pdo = new PDO(
                 dsn: $data_source_name,
-                username: DB_USER,
-                password: DB_PASSWORD);
+                username: 'iuriraimundo',
+                password: 'iuriraimundo');
             $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
             return $pdo;
         } catch (PDOException $e) {

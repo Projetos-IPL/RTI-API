@@ -1,11 +1,13 @@
 <?php
 
 include_once $_SERVER['DOCUMENT_ROOT'] . '/utils/constants.php';
+include_once $_SERVER['DOCUMENT_ROOT'] . '/utils/Manager/ManagerUtils.php';
+
 include_once $_SERVER['DOCUMENT_ROOT'] . '/utils/exceptions/DataSchemaException.php';
 include_once $_SERVER['DOCUMENT_ROOT'] . '/utils/exceptions/FileReadException.php';
 include_once $_SERVER['DOCUMENT_ROOT'] . '/utils/exceptions/FileWriteException.php';
-
 include_once $_SERVER['DOCUMENT_ROOT'] . '/People/exceptions/DuplicateRFIDException.php';
+
 
 class PeopleManager
 {
@@ -25,7 +27,8 @@ class PeopleManager
     {
         $queryString = "SELECT * FROM " . $this->PEOPLE_TABLE_NAME;
         $stmt = $this->pdo->query($queryString, PDO::FETCH_ASSOC);
-        return $stmt->fetchAll();
+        $result = $stmt->fetchAll();
+        return $result ?: array();
     }
 
 

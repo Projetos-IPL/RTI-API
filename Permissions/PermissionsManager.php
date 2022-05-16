@@ -8,7 +8,6 @@ class PermissionsManager
 {
 
     public string $PERMISSION_TABLE_NAME = 'permission';
-    public array $PERMISSION_SCHEMA = array('id', 'rfid');
     private PDO $pdo;
 
     public function __construct(PDO $pdo)
