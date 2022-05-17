@@ -1,6 +1,7 @@
 {
     "require": {
         "firebase/php-jwt": "^6.1",
-      "ext-pdo": "*"
+      "ext-pdo": "*",
+      "ext-ssh2": "*"
     }
 }

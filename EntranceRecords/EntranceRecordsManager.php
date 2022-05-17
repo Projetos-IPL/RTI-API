@@ -1,9 +1,11 @@
 <?php
 
+include_once $_SERVER['DOCUMENT_ROOT'] . '/People/PeopleManager.php';
 
 class EntranceRecordsManager
 {
     public string $ENTRANCE_RECORDS_TABLE_NAME = 'entrance_logs';
+    private PDO $pdo;
 
     public function __construct(PDO $pdo)
     {
@@ -31,6 +33,57 @@ class EntranceRecordsManager
         $stmt = $this->pdo->query($queryString, PDO::FETCH_ASSOC);
         return $stmt->fetchAll();
     }
+
+    /** Função para obter registos filtrados por condições.
+     * @param array $URL_PARAMS
+     * @return array Associative Array de registos
+     */
+    public function getEntranceRecordsFiltered(array $URL_PARAMS) : array
+    {
+
+        $queryString = "SELECT * FROM " . $this->ENTRANCE_RECORDS_TABLE_NAME;
+        $conditions = array();
+
+        // Adicionar condição de rfid
+        if (isset($URL_PARAMS['rfid'])) {
+            $conditions[] = "rfid = " . $URL_PARAMS['rfid'];
+        }
+
+        // Adciionar condição de access
+        if (isset($URL_PARAMS['access'])) {
+            $conditions[] = "access = " . $URL_PARAMS['access'];
+        }
+
+        // Adicionar condição de data
+        if (isset($URL_PARAMS['date'])) {
+            $conditions[] = "FROM_UNIXTIME(timestamp, '%d-%m-%Y')  = '" . $URL_PARAMS['date'] . "'";
+        }
+
+        $i = 0;
+        $conditionsCount = count($conditions);
+
+        if ($conditionsCount != 0) {
+            $queryString = $queryString . " WHERE ";
+        }
+
+        foreach ($conditions as $condition) {
+            $queryString = $queryString . $condition;
+            $i++;
+            if ($i != $conditionsCount) {
+                $queryString = $queryString . " AND ";
+            }
+        }
+
+        // Filtrar por latest
+        if (isset($URL_PARAMS['latest']) && $URL_PARAMS['latest'] == 1) {
+            $queryString = $queryString . " ORDER BY timestamp DESC LIMIT 1";
+        }
+
+        $stmt = $this->pdo->query($queryString, PDO::FETCH_ASSOC);
+
+        return $stmt->fetchAll() ?: array();
+    }
+
 
     /** Função para criar um registo de entrada a partir de um rfid, o acesso é determinado
      *  e atribuido nesta função.

@@ -33,7 +33,7 @@ class EntranceRecordsController extends Controller
             POST => X_AUTH_TOKEN,
         );
 
-        $ALLOWED_URL_PARAMS = ['rfid', 'access', 'date'];
+        $ALLOWED_URL_PARAMS = ['rfid', 'access', 'date', 'latest'];
 
         parent::__construct($ALLOWED_METHODS,
                             $AUTHORIZATION_MAP,
@@ -45,7 +45,7 @@ class EntranceRecordsController extends Controller
     protected function routeRequest()
     {
 
-        $this->entranceRecordsManager = new EntranceRecordsManager();
+        $this->entranceRecordsManager = new EntranceRecordsManager($this->pdo);
 
         switch ($_SERVER['REQUEST_METHOD']) {
             case GET:
@@ -66,27 +66,10 @@ class EntranceRecordsController extends Controller
 
             $this->entranceRecordsManager->getEntranceRecords();
 
-            if (count($this->URL_PARAMS) != 0) {
-
-                // Filtrar por rfid
-                if (isset($this->URL_PARAMS['rfid'])) {
-                    $recordsArr = EntranceRecordsUtils::getEntranceRecordsByRFID($recordsArr, $this->URL_PARAMS['rfid']);
-                    if (!$recordsArr) {
-                        throw new EntranceRecordNotFoundException($this->URL_PARAMS['rfid']);
-                    }
-                }
-
-                // Filtrar por access
-                if (isset($this->URL_PARAMS['access'])) {
-                    $recordsArr = EntranceRecordsUtils::filterRecordsByAccess($recordsArr, $this->URL_PARAMS['access']);
-                }
-
-                // TODO Implementar
-                // Filtrar por data
-                if (isset($this->URL_PARAMS['date'])) {
-                    $recordsArr = EntranceRecordsUtils::filterRecordsByDate($recordsArr, $this->URL_PARAMS['date']);
-                }
-
+            if (count($this->URL_PARAMS) == 0) {
+                $recordsArr = $this->entranceRecordsManager->getEntranceRecords();
+            } else {
+                $recordsArr = $this->entranceRecordsManager->getEntranceRecordsFiltered($this->URL_PARAMS);
             }
 
             $recordsJSONEncoded = json_encode(array_values($recordsArr));
@@ -104,7 +87,7 @@ class EntranceRecordsController extends Controller
         // Tentar adicionar registo
         try {
             $this->entranceRecordsManager->createEntranceRecord($this->REQ_BODY['rfid']);
-            objectWrittenSuccessfullyResponse($this->entranceRecordsManager->getEntranceRecordsByRFID($this->REQ_BODY['rfid']));
+            objectWrittenSuccessfullyResponse($this->entranceRecordsManager->getEntranceRecordsFiltered(array("rfid" => $this->REQ_BODY['rfid'], "latest" => 1)));
         } catch (PersonNotFoundException $e) {
             unprocessableEntityResponse($e->getMessage());
         } catch (Exception $e) {
