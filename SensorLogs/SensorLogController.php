@@ -24,7 +24,7 @@ class SensorLogController extends Controller
         );
 
         $REQ_BODY_SPEC = array(
-            POST => ['sensorType', 'value', 'timestamp']
+            POST => ['sensorType', 'value']
         );
 
         $REQ_HEADER_SPEC = array(
@@ -33,8 +33,6 @@ class SensorLogController extends Controller
         );
 
         $ALLOWED_URL_PARAMS = ['sensorType', 'latest'];
-
-        $this->sensorLogManager = new SensorLogManager();
 
         parent::__construct($ALLOWED_METHODS,
                             $AUTHORIZATION_MAP,
@@ -45,6 +43,9 @@ class SensorLogController extends Controller
 
     protected function routeRequest()
     {
+
+        $this->sensorLogManager = new SensorLogManager($this->pdo);
+
         $reqMethod = $_SERVER['REQUEST_METHOD'];
 
         switch ($reqMethod) {
@@ -63,27 +64,16 @@ class SensorLogController extends Controller
     public function getHandler()
     {
         try {
-            $sensorLogsArr = $this->sensorLogManager->getSensorLogs();
-
             // Se foram definidos parâmetros de URL, filtrar resultados
-            if (count($this->URL_PARAMS) != 0) {
-
-                // Filtrar por sensorType
-                if (isset($this->URL_PARAMS['sensorType'])) {
-                    $sensorLogsArr = SensorLogUtils::filterLogsBySensorType($sensorLogsArr, $this->URL_PARAMS['sensorType']);
-                }
-
-                // Filtrar por último
-                if (isset($this->URL_PARAMS['latest']) && $this->URL_PARAMS['latest'] == 1) {
-                    $sensorLogsArr = SensorLogUtils::getLatestLog($sensorLogsArr);
-                }
+            if (count($this->URL_PARAMS) == 0) {
+                $sensorLogsArr = $this->sensorLogManager->getSensorLogs();
+            } else {
+                $sensorLogsArr = $this->sensorLogManager->getSensorLogsFiltered($this->URL_PARAMS);
             }
 
             $sensorLogsJSONEncoded = json_encode(array_values($sensorLogsArr));
             successfulDataFetchResponse($sensorLogsJSONEncoded);
-        } catch (InvalidSensorTypeException $e) {
-            unprocessableEntityResponse($e->getMessage());
-        } catch (FileReadException|OperationNotAllowedException $e) {
+        } catch (Exception $e) {
             internalErrorResponse($e->getMessage());
         }
     }
@@ -94,14 +84,12 @@ class SensorLogController extends Controller
         try {
             $log = array(
                 'sensorType' => $this->REQ_BODY['sensorType'],
-                'value' => $this->REQ_BODY['value'],
-                'timestamp' => $this->REQ_BODY['timestamp']
-            );
+                'value' => $this->REQ_BODY['value']);
             $this->sensorLogManager->addSensorLog($log);
             objectWrittenSuccessfullyResponse($log);
         } catch (InvalidSensorTypeException $e) {
             unprocessableEntityResponse($e->getMessage());
-        } catch (DataSchemaException|FileReadException|FileWriteException|OperationNotAllowedException $e) {
+        } catch (DataSchemaException|Exception $e) {
             internalErrorResponse($e->getMessage());
         }
     }

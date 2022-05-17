@@ -62,10 +62,6 @@ class EntranceRecordsController extends Controller
     public function getHandler()
     {
         try {
-            $recordsArr = array();
-
-            $this->entranceRecordsManager->getEntranceRecords();
-
             if (count($this->URL_PARAMS) == 0) {
                 $recordsArr = $this->entranceRecordsManager->getEntranceRecords();
             } else {
@@ -75,8 +71,6 @@ class EntranceRecordsController extends Controller
             $recordsJSONEncoded = json_encode(array_values($recordsArr));
             successfulDataFetchResponse($recordsJSONEncoded);
 
-        } catch (EntranceRecordNotFoundException $e) {
-            noContentResponse($e->getMessage());
         } catch (Exception $e) {
             internalErrorResponse($e->getMessage());
         }

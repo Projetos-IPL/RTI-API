@@ -1,45 +1,78 @@
 <?php
 
 include_once $_SERVER['DOCUMENT_ROOT'] . '/utils/constants.php';
+include_once $_SERVER['DOCUMENT_ROOT'] . '/utils/Manager/ManagerUtils.php';
 
-class ActuatorLogsManager extends Manager
+include_once $_SERVER['DOCUMENT_ROOT'] . '/ActuatorLogs/exceptions/InvalidActuatorTypeException.php';
+
+class ActuatorLogsManager
 {
 
-    public function __construct()
+    public string $ACTUATOR_LOGS_TABLE_NAME = 'actuator_logs';
+    private PDO $pdo;
+
+    public function __construct(PDO $pdo)
     {
-        $ACTUATOR_LOGS_FILE_LOC = ROOTPATH . '/files/';
-        $ACTUATOR_LOGS_FILE_NAME = 'actuatorLogs.json';
-        $ACTUATOR_LOGS_SCHEMA = array('actuatorType', 'timestamp');
-
-        $ALLOWED_OPERATIONS = array(
-            ManagerUtils::READ,
-            ManagerUtils::WRITE);
-
-        parent::__construct(
-            'ACTUATOR_LOG',
-            $ACTUATOR_LOGS_FILE_LOC,
-            $ACTUATOR_LOGS_FILE_NAME,
-            $ACTUATOR_LOGS_SCHEMA,
-            $ALLOWED_OPERATIONS);
+        $this->pdo = $pdo;
     }
 
     /** Função para obter os registos de atuadores armazenados em ficheiro
-     * @throws FileReadException
-     * @throws OperationNotAllowedException
+     * @return array Associative Array de registos
      */
     public function getActuatorLogs(): array
     {
-        return $this->getEntityData();
+        $queryString = "SELECT * FROM " . $this->ACTUATOR_LOGS_TABLE_NAME;
+        $stmt = $this->pdo->query($queryString, PDO::FETCH_ASSOC);
+        $result = $stmt->fetchAll();
+        return $result ?: array();
+    }
+
+    /** Função para obter registos filtrados por condições.
+     * @param array $URL_PARAMS
+     * @return array Associative Array de registos
+     */
+    public function getActuatorLogsFiltered(array $URL_PARAMS) : array
+    {
+        $queryString = "SELECT * FROM " . $this->ACTUATOR_LOGS_TABLE_NAME;
+
+        // Adicionar condição de sensorType
+        if (isset($URL_PARAMS['actuatorTyoe'])) {
+            $queryString = $queryString .  " WHERE actuator_id = " . $URL_PARAMS['actuatorTyoe'];
+        }
+
+        // Condição latest
+        if (isset($URL_PARAMS['latest']) && $URL_PARAMS['latest'] == 1) {
+            $queryString = $queryString . " ORDER BY timestamp DESC LIMIT 1";
+        }
+
+        // Executar query
+        $stmt = $this->pdo->query($queryString, PDO::FETCH_ASSOC);
+        return $stmt->fetchAll() ?: array();
     }
 
     /** Função para adicionar um registo de atuador aos logs armazenados em ficheiro
-     * @throws FileReadException
-     * @throws FileWriteException
      * @throws DataSchemaException
-     * @throws OperationNotAllowedException
+     * @throws Exception
      */
-    public function addActuatorLog(array $log)
+    public function addActuatorLog(string $actuatorType)
     {
-        $this->addEntity($log);
-    }
+        // Validar tipo de sensor (sensor_id)
+        if (!ActuatorLogUtils::validateActuatorType($this->pdo, $actuatorType)) {
+            throw new InvalidActuatorTypeException($actuatorType);
+        }
+
+        // Adicionar registo de sensor
+        $sql = "INSERT INTO " . $this->ACTUATOR_LOGS_TABLE_NAME . " (actuator_id)
+                    VALUES (?)";
+
+        $stmt = $this->pdo->prepare($sql);
+
+        try {
+            $this->pdo->beginTransaction();
+            $stmt->execute(array($actuatorType));
+            $this->pdo->commit();
+        } catch (Exception $e) {
+            $this->pdo->rollBack();
+            throw $e;
+        }    }
 }

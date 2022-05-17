@@ -23,24 +23,12 @@ class EntranceRecordsManager
         return $result ?: array();
     }
 
-    /** Função para obter registos por rfid
-     * @param string $rfid
-     * @return array | false Array de pessoas ou falso se não forem encontrados dados
-     */
-    public function getEntranceRecordsByRFID(string $rfid) : array | false
-    {
-        $queryString = "SELECT * FROM " . $this->ENTRANCE_RECORDS_TABLE_NAME . " WHERE rfid = '" . $rfid . "'";
-        $stmt = $this->pdo->query($queryString, PDO::FETCH_ASSOC);
-        return $stmt->fetchAll();
-    }
-
     /** Função para obter registos filtrados por condições.
      * @param array $URL_PARAMS
      * @return array Associative Array de registos
      */
     public function getEntranceRecordsFiltered(array $URL_PARAMS) : array
     {
-
         $queryString = "SELECT * FROM " . $this->ENTRANCE_RECORDS_TABLE_NAME;
         $conditions = array();
 
@@ -79,8 +67,8 @@ class EntranceRecordsManager
             $queryString = $queryString . " ORDER BY timestamp DESC LIMIT 1";
         }
 
+        // Executar query
         $stmt = $this->pdo->query($queryString, PDO::FETCH_ASSOC);
-
         return $stmt->fetchAll() ?: array();
     }
 
