@@ -33,7 +33,7 @@ class EntranceRecordsController extends Controller
             POST => X_AUTH_TOKEN,
         );
 
-        $ALLOWED_URL_PARAMS = ['rfid', 'access', 'date', 'latest'];
+        $ALLOWED_URL_PARAMS = ['rfid', 'access', 'date', 'latest', 'showPersonName'];
 
         parent::__construct($ALLOWED_METHODS,
                             $AUTHORIZATION_MAP,

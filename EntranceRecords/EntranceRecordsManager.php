@@ -5,6 +5,8 @@ include_once $_SERVER['DOCUMENT_ROOT'] . '/People/PeopleManager.php';
 class EntranceRecordsManager
 {
     public string $ENTRANCE_RECORDS_TABLE_NAME = 'entrance_logs';
+    public string $ENTRANCE_RECORDS_PERSON_VIEW = 'entrance_logs_person_view';
+
     private PDO $pdo;
 
     public function __construct(PDO $pdo)
@@ -23,14 +25,34 @@ class EntranceRecordsManager
         return $result ?: array();
     }
 
+    /** Função para obter um array de registos da view entrance_logs_person_view
+     * @return array Associative Array de registos
+     */
+    public function getEntranceLogPersonViewRecords(): array
+    {
+        $queryString = "SELECT * FROM " . $this->ENTRANCE_RECORDS_PERSON_VIEW;
+        $stmt = $this->pdo->query($queryString, PDO::FETCH_ASSOC);
+        $result = $stmt->fetchAll();
+        return $result ?: array();
+    }
+
     /** Função para obter registos filtrados por condições.
      * @param array $URL_PARAMS
      * @return array Associative Array de registos
      */
     public function getEntranceRecordsFiltered(array $URL_PARAMS) : array
     {
-        $queryString = "SELECT * FROM " . $this->ENTRANCE_RECORDS_TABLE_NAME;
+
+        // Se o parametro showPersonName for 1, a query deve ser feita à view
+        if (isset($URL_PARAMS['showPersonName']) && $URL_PARAMS['showPersonName'] == 1) {
+            $table = $this->ENTRANCE_RECORDS_PERSON_VIEW;
+        } else {
+            $table = $this->ENTRANCE_RECORDS_TABLE_NAME;
+        }
+
+        $queryString = "SELECT * FROM " . $table;
         $conditions = array();
+
 
         // Adicionar condição de rfid
         if (isset($URL_PARAMS['rfid'])) {
@@ -63,8 +85,8 @@ class EntranceRecordsManager
         }
 
         // Filtrar por latest
-        if (isset($URL_PARAMS['latest']) && $URL_PARAMS['latest'] == 1) {
-            $queryString = $queryString . " ORDER BY timestamp DESC LIMIT 1";
+        if (isset($URL_PARAMS['latest']) && $URL_PARAMS['latest'] > 0) {
+            $queryString = $queryString . " ORDER BY timestamp DESC LIMIT " . $URL_PARAMS['latest'];
         }
 
         // Executar query
