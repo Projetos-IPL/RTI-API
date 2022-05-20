@@ -108,7 +108,7 @@ class EntranceRecordsManager
         // Verificar se pessoa existe, uma exceção é levantada quando não encontram uma pessoa.
         $peopleManager = new PeopleManager($this->pdo);
         if (!$peopleManager->getPersonByRFID($rfid)) {
-            throw new PersonNotFoundException();
+            throw new PersonNotFoundException($rfid);
         }
 
         // Adicionar permissão
