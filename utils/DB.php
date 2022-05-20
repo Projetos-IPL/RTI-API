@@ -8,6 +8,7 @@ class DB
 
     /** Função para criar a conecção com a base de dados
      * @throws DBConnectionException
+     * @return PDO Php Data Object com a conecção
      */
     public static function connect() : PDO
     {

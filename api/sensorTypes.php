@@ -1,15 +1,16 @@
 <?php
 
-    include_once $_SERVER['DOCUMENT_ROOT'].'/utils/requestConfig.php';
-    include_once $_SERVER['DOCUMENT_ROOT'].'/utils/commonResponses.php';
-    include_once $_SERVER['DOCUMENT_ROOT'].'/SensorLogs/SensorLogUtils.php';
+include_once $_SERVER['DOCUMENT_ROOT'] . '/utils/requestConfig.php';
+include_once $_SERVER['DOCUMENT_ROOT'] . '/utils/commonResponses.php';
+include_once $_SERVER['DOCUMENT_ROOT'] . '/SensorLogs/SensorLogUtils.php';
 
-    requestConfig();
+requestConfig();
 
-    $sensorTypes = SensorLogUtils::getSensorTypes();
+try {
+    $pdo = DB::connect();
+    $sensorTypes = SensorLogUtils::getSensorTypes($pdo);
+    successfulDataFetchResponse(json_encode($sensorTypes));
+} catch (DBConnectionException $e) {
+    internalErrorResponse($e->getMessage());
+}
 
-    if (count($sensorTypes) == 0) {
-        internalErrorResponse("Falha ao ler ficheiro de configuração.");
-    } else {
-        successfulDataFetchResponse(json_encode($sensorTypes));
-    }
