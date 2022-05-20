@@ -1,6 +1,8 @@
 <?php
 
 include_once $_SERVER['DOCUMENT_ROOT'] . '/People/PeopleManager.php';
+include_once $_SERVER['DOCUMENT_ROOT'] . '/People/exceptions/PersonNotFoundException.php';
+
 
 class EntranceRecordsManager
 {
