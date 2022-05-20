@@ -52,7 +52,7 @@
         }
 
         private function getHandler() {
-            if (AuthUtils::verifyJWT($this->REQ_BODY['token'])) {
+            if (AuthUtils::verifyJWT($this->REQ_HEADERS[X_AUTH_TOKEN])) {
                 http_response_code(200);
                 $res_body = json_encode(array(
                     'message' => 'Autorizado'
