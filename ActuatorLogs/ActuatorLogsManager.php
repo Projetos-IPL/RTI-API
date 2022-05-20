@@ -41,8 +41,8 @@ class ActuatorLogsManager
         }
 
         // Condição latest
-        if (isset($URL_PARAMS['latest']) && $URL_PARAMS['latest'] == 1) {
-            $queryString = $queryString . " ORDER BY timestamp DESC LIMIT 1";
+        if (isset($URL_PARAMS['latest']) && $URL_PARAMS['latest'] > 0) {
+            $queryString = $queryString . " ORDER BY timestamp DESC LIMIT " . $URL_PARAMS['latest'];
         }
 
         // Executar query
