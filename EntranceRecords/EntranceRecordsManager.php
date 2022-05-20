@@ -56,7 +56,7 @@ class EntranceRecordsManager
 
         // Adicionar condição de rfid
         if (isset($URL_PARAMS['rfid'])) {
-            $conditions[] = "rfid = " . $URL_PARAMS['rfid'];
+            $conditions[] = "rfid = '" . $URL_PARAMS['rfid'] . "'";
         }
 
         // Adciionar condição de access
