@@ -7,6 +7,7 @@ class SensorLogManager
 {
 
     public string $SENSOR_LOGS_TABLE_NAME = 'sensor_logs';
+    public string $SENSOR_LOGS_VIEW_NAME = 'sensor_log_sensor_view';
     public array $SENSOR_LOGS_SCHEMA = array('sensorType', 'value');
     private PDO $pdo;
 
@@ -33,7 +34,15 @@ class SensorLogManager
      */
     public function getSensorLogsFiltered(array $URL_PARAMS) : array
     {
-        $queryString = "SELECT * FROM " . $this->SENSOR_LOGS_TABLE_NAME;
+        // Se o parametro showSensorName for 1, a query deve ser feita à view
+        if (isset($URL_PARAMS['showSensorName']) && $URL_PARAMS['showSensorName'] == 1) {
+            $table = $this->SENSOR_LOGS_VIEW_NAME;
+        } else {
+            $table = $this->SENSOR_LOGS_TABLE_NAME;
+        }
+
+        $queryString = "SELECT * FROM " . $table;
+
 
         // Adicionar condição de sensorType
         if (isset($URL_PARAMS['sensorType'])) {
@@ -44,6 +53,7 @@ class SensorLogManager
         if (isset($URL_PARAMS['latest']) && $URL_PARAMS['latest'] > 0) {
             $queryString = $queryString . " ORDER BY timestamp DESC LIMIT " . $URL_PARAMS['latest'];
         }
+
 
         // Executar query
         $stmt = $this->pdo->query($queryString, PDO::FETCH_ASSOC);

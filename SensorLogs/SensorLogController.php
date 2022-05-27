@@ -32,7 +32,7 @@ class SensorLogController extends Controller
             POST => X_AUTH_TOKEN
         );
 
-        $ALLOWED_URL_PARAMS = ['sensorType', 'latest'];
+        $ALLOWED_URL_PARAMS = ['sensorType', 'latest', 'showSensorName'];
 
         parent::__construct($ALLOWED_METHODS,
                             $AUTHORIZATION_MAP,
