@@ -21,7 +21,7 @@ class EntranceRecordsManager
      */
     public function getEntranceRecords(): array
     {
-        $queryString = "SELECT * FROM " . $this->ENTRANCE_RECORDS_TABLE_NAME;
+        $queryString = "SELECT * FROM " . $this->ENTRANCE_RECORDS_TABLE_NAME . " ORDER BY 1 DESC";
         $stmt = $this->pdo->query($queryString, PDO::FETCH_ASSOC);
         $result = $stmt->fetchAll();
         return $result ?: array();
@@ -86,9 +86,12 @@ class EntranceRecordsManager
             }
         }
 
+        // Ordenar
+        $queryString = $queryString . " ORDER BY 1 DESC";
+
         // Filtrar por latest
         if (isset($URL_PARAMS['latest']) && $URL_PARAMS['latest'] > 0) {
-            $queryString = $queryString . " ORDER BY timestamp DESC LIMIT " . $URL_PARAMS['latest'];
+            $queryString = $queryString . " LIMIT " . $URL_PARAMS['latest'];
         }
 
         // Executar query

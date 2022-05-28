@@ -49,9 +49,11 @@ class ActuatorLogsManager
             $queryString = $queryString .  " WHERE actuator_id = " . $URL_PARAMS['actuatorTyoe'];
         }
 
+        $queryString = $queryString . " ORDER BY 1 DESC";
+
         // Condição latest
         if (isset($URL_PARAMS['latest']) && $URL_PARAMS['latest'] > 0) {
-            $queryString = $queryString . " ORDER BY timestamp DESC LIMIT " . $URL_PARAMS['latest'];
+            $queryString = $queryString . " LIMIT " . $URL_PARAMS['latest'];
         }
 
         // Executar query
