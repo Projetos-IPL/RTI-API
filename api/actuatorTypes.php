@@ -1,15 +1,19 @@
 <?php
 
-    include_once $_SERVER['DOCUMENT_ROOT'].'/utils/requestConfig.php';
-    include_once $_SERVER['DOCUMENT_ROOT'].'/utils/commonResponses.php';
+include_once $_SERVER['DOCUMENT_ROOT'] . '/utils/DB.php';
+include_once $_SERVER['DOCUMENT_ROOT'] . '/utils/requestConfig.php';
+include_once $_SERVER['DOCUMENT_ROOT'] . '/utils/commonResponses.php';
+include_once $_SERVER['DOCUMENT_ROOT'] . '/ActuatorLogs/ActuatorLogUtils.php';
 
-    requestConfig();
-    
-    $sctuatorTypes = file_get_contents($_SERVER['DOCUMENT_ROOT'].'/config/actuatorTypes.json');
-    
-    if ($sctuatorTypes == null) {
-        internalErrorResponse("Falha ao ler ficheiro de configuração.");
-    } else {
-        successfulDataFetchResponse($sctuatorTypes);
-    }
-    
+requestConfig();
+
+try {
+
+    $pdo = DB::connect();
+    $sensorTypes = ActuatorLogUtils::getActuatorTypes($pdo);
+    successfulDataFetchResponse(json_encode($sensorTypes));
+
+} catch (DBConnectionException $e) {
+    internalErrorResponse($e->getMessage());
+}
+

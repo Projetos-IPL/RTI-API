@@ -11,7 +11,7 @@ abstract class ActuatorLogUtils {
      */
     public static function getActuatorTypes(PDO $pdo) : array
     {
-        $queryString = "SELECT actuator_id FROM " . self::$ACTUATOR_TABLES;
+        $queryString = "SELECT actuator_id, name FROM " . self::$ACTUATOR_TABLES;
         $stmt = $pdo->query($queryString, PDO::FETCH_ASSOC);
         $result = $stmt->fetchAll();
         return $result ?: array();
