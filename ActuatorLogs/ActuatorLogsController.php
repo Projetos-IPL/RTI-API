@@ -30,7 +30,7 @@ class ActuatorLogsController extends Controller
             POST => X_AUTH_TOKEN
         );
 
-        $ALLOWED_URL_PARAMS = ['actuatorType', 'latest'];
+        $ALLOWED_URL_PARAMS = ['actuatorType', 'latest', 'showActuatorName'];
 
         parent::__construct($ALLOWED_METHODS,
                             $AUTHORIZATION_MAP,

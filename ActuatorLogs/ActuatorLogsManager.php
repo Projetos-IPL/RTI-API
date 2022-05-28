@@ -9,6 +9,8 @@ class ActuatorLogsManager
 {
 
     public string $ACTUATOR_LOGS_TABLE_NAME = 'actuator_logs';
+    public string $ACTUATOR_LOGS_VIEW_NAME = 'actuator_logs_actuator_view';
+
     private PDO $pdo;
 
     public function __construct(PDO $pdo)
@@ -33,7 +35,14 @@ class ActuatorLogsManager
      */
     public function getActuatorLogsFiltered(array $URL_PARAMS) : array
     {
-        $queryString = "SELECT * FROM " . $this->ACTUATOR_LOGS_TABLE_NAME;
+
+        if (isset($URL_PARAMS['showActuatorName']) && $URL_PARAMS['showActuatorName'] == 1) {
+            $table = $this->ACTUATOR_LOGS_VIEW_NAME;
+        } else {
+            $table = $this->ACTUATOR_LOGS_TABLE_NAME;
+        }
+
+        $queryString = "SELECT * FROM " . $table;
 
         // Adicionar condição de sensorType
         if (isset($URL_PARAMS['actuatorTyoe'])) {
