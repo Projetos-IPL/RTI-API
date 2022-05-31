@@ -22,7 +22,7 @@ class ActuatorLogsController extends Controller
         );
 
         $REQ_BODY_SPEC = array(
-            POST => ['actuatorType']
+            POST => ['actuatorType', 'actuatorState']
         );
 
         $REQ_HEADER_SPEC = array(
@@ -79,8 +79,10 @@ class ActuatorLogsController extends Controller
         // Tentar adicionar registo de atuador
         try {
             $log = array(
-                'actuatorType' => $this->REQ_BODY['actuatorType']);
-            $this->actuatorLogsManager->addActuatorLog($this->REQ_BODY['actuatorType']);
+                'actuatorType' => $this->REQ_BODY['actuatorType'],
+                'actuatorState' => $this->REQ_BODY['actuatorState']
+            );
+            $this->actuatorLogsManager->addActuatorLog($log);
             objectWrittenSuccessfullyResponse($log);
         } catch (DataSchemaException|Exception $e) {
             internalErrorResponse($e->getMessage());

@@ -5,7 +5,6 @@ include_once $_SERVER['DOCUMENT_ROOT'] . '/utils/commonResponses.php';
 include_once $_SERVER['DOCUMENT_ROOT'] . '/utils/constants.php';
 
 include_once $_SERVER['DOCUMENT_ROOT'] . '/utils/Controller/Controller.php';
-include_once $_SERVER['DOCUMENT_ROOT'] . '/utils/Manager/Manager.php';
 include_once $_SERVER['DOCUMENT_ROOT'] . '/utils/Manager/exceptions/OperationNotAllowedException.php';
 
 include_once $_SERVER['DOCUMENT_ROOT'] . '/Auth/AuthUtils.php';

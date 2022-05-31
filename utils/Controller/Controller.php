@@ -59,7 +59,7 @@
          * @return void
          */
         public function handleRequest() {
-            // Configurar cabeçalhos, iniciar conecção com a base de dados, tratar do cors
+            // Configurar cabeçalhos, tratar do cors
             requestConfig();
 
             // Validar pedido, no nível de autorizações e formato

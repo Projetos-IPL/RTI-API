@@ -1,7 +1,6 @@
 <?php
 
 include_once $_SERVER['DOCUMENT_ROOT'] . '/utils/constants.php';
-include_once $_SERVER['DOCUMENT_ROOT'] . '/utils/Manager/Manager.php';
 include_once $_SERVER['DOCUMENT_ROOT'] . '/Permissions/exceptions/DuplicatePermissionException.php';
 
 class PermissionsManager

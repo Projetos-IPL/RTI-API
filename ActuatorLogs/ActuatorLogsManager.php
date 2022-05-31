@@ -61,26 +61,27 @@ class ActuatorLogsManager
         return $stmt->fetchAll() ?: array();
     }
 
-    /** Função para adicionar um registo de atuador aos logs armazenados em ficheiro
+    /** Função para adicionar um registo de atuador
+     * @param array Log
      * @throws DataSchemaException
      * @throws Exception
      */
-    public function addActuatorLog(string $actuatorType)
+    public function addActuatorLog(array $log)
     {
         // Validar tipo de sensor (sensor_id)
-        if (!ActuatorLogUtils::validateActuatorType($this->pdo, $actuatorType)) {
-            throw new InvalidActuatorTypeException($actuatorType);
+        if (!ActuatorLogUtils::validateActuatorType($this->pdo, $log['actuatorType'])) {
+            throw new InvalidActuatorTypeException($log['actuatorType']);
         }
 
         // Adicionar registo de sensor
-        $sql = "INSERT INTO " . $this->ACTUATOR_LOGS_TABLE_NAME . " (actuator_id)
-                    VALUES (?)";
+        $sql = "INSERT INTO " . $this->ACTUATOR_LOGS_TABLE_NAME . " (actuator_id, actuatorState)
+                    VALUES (?, ?)";
 
         $stmt = $this->pdo->prepare($sql);
 
         try {
             $this->pdo->beginTransaction();
-            $stmt->execute(array($actuatorType));
+            $stmt->execute(array($log['actuatorType'], $log['actuatorState']));
             $this->pdo->commit();
         } catch (Exception $e) {
             $this->pdo->rollBack();
