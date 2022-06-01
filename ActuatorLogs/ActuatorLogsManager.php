@@ -2,6 +2,7 @@
 
 include_once $_SERVER['DOCUMENT_ROOT'] . '/utils/constants.php';
 include_once $_SERVER['DOCUMENT_ROOT'] . '/utils/Manager/ManagerUtils.php';
+include_once $_SERVER['DOCUMENT_ROOT'] . '/ActuatorLogs/ActuatorLogUtils.php';
 
 include_once $_SERVER['DOCUMENT_ROOT'] . '/ActuatorLogs/exceptions/InvalidActuatorTypeException.php';
 
