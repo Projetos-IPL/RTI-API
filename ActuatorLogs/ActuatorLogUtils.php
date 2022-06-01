@@ -25,8 +25,8 @@ abstract class ActuatorLogUtils {
     public static function validateActuatorType(PDO $pdo, string $id) : bool
     {
         $valid = false;
-        foreach (self::getActuatorTypes($pdo) as $actuatorType) {
-            if ($actuatorType == $id) {
+        foreach (self::getActuatorTypes($pdo) as $actuator) {
+            if ($actuator['actuator_id'] == $id) {
                 $valid = true;
                 break;
             }
