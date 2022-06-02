@@ -78,6 +78,8 @@ class ActuatorLogsManager
         $sql = "INSERT INTO " . $this->ACTUATOR_LOGS_TABLE_NAME . " (actuator_id, actuatorState)
                     VALUES (?, ?)";
 
+        echo $sql;
+
         $stmt = $this->pdo->prepare($sql);
 
         try {
