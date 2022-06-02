@@ -46,8 +46,8 @@ class ActuatorLogsManager
         $queryString = "SELECT * FROM " . $table;
 
         // Adicionar condição de sensorType
-        if (isset($URL_PARAMS['actuatorTyoe'])) {
-            $queryString = $queryString .  " WHERE actuator_id = " . $URL_PARAMS['actuatorTyoe'];
+        if (isset($URL_PARAMS['actuatorType'])) {
+            $queryString = $queryString .  " WHERE actuator_id = " . $URL_PARAMS['actuatorType'];
         }
 
         $queryString = $queryString . " ORDER BY 1 DESC";
