@@ -75,7 +75,7 @@ class ActuatorLogsManager
         }
 
         // Adicionar registo de sensor
-        $sql = "INSERT INTO " . $this->ACTUATOR_LOGS_TABLE_NAME . " (actuator_id, actuatorState)
+        $sql = "INSERT INTO " . $this->ACTUATOR_LOGS_TABLE_NAME . " (actuator_id, actuator_state)
                     VALUES (?, ?)";
 
         $stmt = $this->pdo->prepare($sql);
