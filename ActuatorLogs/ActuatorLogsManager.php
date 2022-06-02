@@ -69,6 +69,8 @@ class ActuatorLogsManager
      */
     public function addActuatorLog(array $log)
     {
+        var_dump($log);
+
         // Validar tipo de sensor (sensor_id)
         if (!ActuatorLogUtils::validateActuatorType($this->pdo, $log['actuatorType'])) {
             throw new InvalidActuatorTypeException($log['actuatorType']);
@@ -77,8 +79,6 @@ class ActuatorLogsManager
         // Adicionar registo de sensor
         $sql = "INSERT INTO " . $this->ACTUATOR_LOGS_TABLE_NAME . " (actuator_id, actuatorState)
                     VALUES (?, ?)";
-
-        echo $sql;
 
         $stmt = $this->pdo->prepare($sql);
 
