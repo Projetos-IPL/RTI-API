@@ -86,14 +86,11 @@ class EntranceRecordsImagesManager
     {
         // Adicionar registo
         $sql = "INSERT INTO " . $this->ENTRANCE_RECORDS_IMAGES_TABLE_NAME . " VALUES (?, ?)";
-
-        $image = base64_encode($REQ_BODY['image']);
-
         $stmt = $this->pdo->prepare($sql);
 
         try {
             $this->pdo->beginTransaction();
-            $stmt->execute(array($REQ_BODY['entrance_log_id'],$image));
+            $stmt->execute(array($REQ_BODY['entrance_log_id'], $REQ_BODY['image']));
             $this->pdo->commit();
         } catch (Exception $e) {
             $this->pdo->rollBack();
