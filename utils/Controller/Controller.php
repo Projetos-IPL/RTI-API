@@ -11,6 +11,7 @@
 
     include_once $_SERVER['DOCUMENT_ROOT'].'/utils/constants.php';
     include_once $_SERVER['DOCUMENT_ROOT'].'/utils/DB.php';
+    include_once $_SERVER['DOCUMENT_ROOT'].'/utils/requestConfig.php';
 
     abstract class Controller {
 
@@ -137,4 +138,3 @@
         protected abstract function routeRequest();
 
     }
-

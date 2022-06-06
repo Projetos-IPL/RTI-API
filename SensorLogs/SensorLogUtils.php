@@ -11,7 +11,7 @@ abstract class SensorLogUtils {
      */
     public static function getSensorTypes(PDO $pdo) : array
     {
-        $queryString = "SELECT sensor_id, name FROM " . self::$SENSORS_TABLE;
+        $queryString = "SELECT sensor_id FROM " . self::$SENSORS_TABLE;
         $stmt = $pdo->query($queryString, PDO::FETCH_ASSOC);
         $result = $stmt->fetchAll();
         return $result ?: array();
