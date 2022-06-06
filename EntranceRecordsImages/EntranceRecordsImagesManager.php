@@ -63,13 +63,23 @@ class EntranceRecordsImagesManager
 
         // Executar query
         $stmt = $this->pdo->query($queryString, PDO::FETCH_ASSOC);
-        return $stmt->fetchAll() ?: array();
+
+        $result = $stmt->fetchAll();
+
+        if (!$result) {
+            return array();
+        }
+
+        foreach ($result as &$r) {
+            $r['image'] = base64_encode($r['image']);
+        }
+
+        return $result;
     }
 
 
     /** Função para adicionar uma imagem a um registo de entrada
      * @param array $REQ_BODY
-     * @throws PersonNotFoundException
      * @throws Exception
      */
     public function addEntranceRecordImage(array $REQ_BODY)
@@ -77,11 +87,13 @@ class EntranceRecordsImagesManager
         // Adicionar registo
         $sql = "INSERT INTO " . $this->ENTRANCE_RECORDS_IMAGES_TABLE_NAME . " VALUES (?, ?)";
 
+        $image = chunk_split(base64_encode($REQ_BODY['image']));
+
         $stmt = $this->pdo->prepare($sql);
 
         try {
             $this->pdo->beginTransaction();
-            $stmt->execute(array($REQ_BODY['entrance_log_id'], $REQ_BODY['image']));
+            $stmt->execute(array($REQ_BODY['entrance_log_id'],$image));
             $this->pdo->commit();
         } catch (Exception $e) {
             $this->pdo->rollBack();
