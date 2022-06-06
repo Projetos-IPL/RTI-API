@@ -87,7 +87,7 @@ class EntranceRecordsImagesManager
         // Adicionar registo
         $sql = "INSERT INTO " . $this->ENTRANCE_RECORDS_IMAGES_TABLE_NAME . " VALUES (?, ?)";
 
-        $image = chunk_split(base64_encode($REQ_BODY['image']));
+        $image = base64_encode($REQ_BODY['image']);
 
         $stmt = $this->pdo->prepare($sql);
 
