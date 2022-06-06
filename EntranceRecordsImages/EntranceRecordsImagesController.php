@@ -2,6 +2,7 @@
 
 include_once $_SERVER['DOCUMENT_ROOT'] . '/EntranceRecordsImages/EntranceRecordsImagesManager.php';
 include_once $_SERVER['DOCUMENT_ROOT'] . '/utils/Controller/Controller.php';
+include_once $_SERVER['DOCUMENT_ROOT'] . '/utils/commonResponses.php';
 
 
 class EntranceRecordsImagesController extends Controller
