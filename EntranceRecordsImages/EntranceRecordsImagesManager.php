@@ -66,15 +66,7 @@ class EntranceRecordsImagesManager
 
         $result = $stmt->fetchAll();
 
-        if (!$result) {
-            return array();
-        }
-
-        foreach ($result as &$r) {
-            $r['image'] = base64_encode($r['image']);
-        }
-
-        return $result;
+        return $result ?: array();
     }
 
 
