@@ -26,7 +26,7 @@ class EventsController extends Controller
 
         $REQ_BODY_SPEC = array(
             POST => ["event_name"],
-            DELETE => ["event_queue_id"]
+            DELETE => ["event_name"]
         );
 
         $REQ_HEADER_SPEC = array(
