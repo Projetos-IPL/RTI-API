@@ -26,7 +26,7 @@ class ViewsController extends Controller
             GET => X_AUTH_TOKEN
         );
 
-        $ALLOWED_URL_PARAMS = ['viewName', ];
+        $ALLOWED_URL_PARAMS = ['viewName'];
 
         parent::__construct($ALLOWED_METHODS,
                             $AUTHORIZATION_MAP,
