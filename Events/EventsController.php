@@ -88,7 +88,7 @@ class EventsController extends Controller
         // Adicionar evento à event queue
         try {
             $this->eventsManager->addEventToQueue($this->REQ_BODY["event_name"]);
-            objectWrittenSuccessfullyResponse($this->REQ_BODY["event_name"]);
+            objectWrittenSuccessfullyResponse(["event_name" => $this->REQ_BODY["event_name"]]);
         } catch (Exception $e) {
             internalErrorResponse($e->getMessage());
         }
@@ -99,7 +99,7 @@ class EventsController extends Controller
         // Remover um evento da event queue
         try {
             $this->eventsManager->removeEventFromQueue($this->REQ_BODY["event_name"]);
-            objectDeletedSuccessfullyResponse($this->REQ_BODY["event_name"]);
+            objectDeletedSuccessfullyResponse(["event_name" => $this->REQ_BODY["event_name"]]);
         } catch (Exception $e) {
             internalErrorResponse($e->getMessage());
         }
