@@ -84,8 +84,6 @@ class EntranceRecordsController extends Controller
         try {
             $this->entranceRecordsManager->createEntranceRecord($this->REQ_BODY['rfid']);
             objectWrittenSuccessfullyResponse($this->entranceRecordsManager->getEntranceRecordsFiltered(array("rfid" => $this->REQ_BODY['rfid'], "latest" => 1)));
-        } catch (PersonNotFoundException $e) {
-            unprocessableEntityResponse($e->getMessage());
         } catch (Exception $e) {
             internalErrorResponse($e->getMessage());
         }

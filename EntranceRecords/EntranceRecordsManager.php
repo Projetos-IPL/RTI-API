@@ -103,16 +103,10 @@ class EntranceRecordsManager
     /** Função para criar um registo de entrada a partir de um rfid, o acesso é determinado
      *  e atribuido nesta função.
      * @param string $rfid rfid do novo registo de entrada
-     * @throws PersonNotFoundException
      * @throws Exception
      */
     public function createEntranceRecord(string $rfid)
     {
-        // Verificar se pessoa existe, uma exceção é levantada quando não encontram uma pessoa.
-        $peopleManager = new PeopleManager($this->pdo);
-        if (!$peopleManager->getPersonByRFID($rfid)) {
-            throw new PersonNotFoundException($rfid);
-        }
 
         // Adicionar permissão
         $sql = "INSERT INTO " . $this->ENTRANCE_RECORDS_TABLE_NAME . " (rfid)
