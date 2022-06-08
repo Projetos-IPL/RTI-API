@@ -16,7 +16,7 @@ class EventsManager
         $queryString = "SELECT * FROM " . $this->EVENT_QUEUE_TABLE;
 
         if ($eventName) {
-            $queryString .= " WHERE event_name = " . $eventName;
+            $queryString .= " WHERE event_name = '" . $eventName . "'";
         }
 
         $stmt = $this->pdo->query($queryString, PDO::FETCH_ASSOC);
