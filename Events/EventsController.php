@@ -98,8 +98,14 @@ class EventsController extends Controller
     {
         // Remover um evento da event queue
         try {
-            $this->eventsManager->removeEventFromQueue($this->REQ_BODY["event_name"]);
-            objectDeletedSuccessfullyResponse(["event_name" => $this->REQ_BODY["event_name"]]);
+            if (!isset($this->URL_PARAMS["eventName"])) {
+                throw new NoEventNameSpecifiedException();
+            }
+
+            $this->eventsManager->removeEventFromQueue($this->URL_PARAMS["eventName"]);
+            objectDeletedSuccessfullyResponse(["event_name" => $this->URL_PARAMS["eventName"]]);
+        } catch (NoEventNameSpecifiedException $e) {
+            unprocessableEntityResponse($e->getMessage());
         } catch (Exception $e) {
             internalErrorResponse($e->getMessage());
         }
