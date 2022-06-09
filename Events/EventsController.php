@@ -1,6 +1,5 @@
 <?php
 
-
 include_once $_SERVER['DOCUMENT_ROOT'] . '/utils/requestConfig.php';
 include_once $_SERVER['DOCUMENT_ROOT'] . '/utils/commonResponses.php';
 include_once $_SERVER['DOCUMENT_ROOT'] . '/utils/constants.php';
@@ -15,24 +14,21 @@ class EventsController extends Controller
     public function __construct()
     {
         $ALLOWED_METHODS = array(
-            GET, POST, DELETE
+            GET, POST
         );
 
         $AUTHORIZATION_MAP = array(
             GET => false,
             POST => false,
-            DELETE => false
         );
 
         $REQ_BODY_SPEC = array(
-            POST => ["event_name"],
-            DELETE => ["event_name"]
+            POST => ["event_name", "action"],
         );
 
         $REQ_HEADER_SPEC = array(
             GET => X_AUTH_TOKEN,
             POST => X_AUTH_TOKEN,
-            DELETE => X_AUTH_TOKEN
         );
 
         $ALLOWED_URL_PARAMS = ['eventName'];
@@ -56,9 +52,6 @@ class EventsController extends Controller
                 break;
             case POST:
                 self::postHandler();
-                break;
-            case DELETE:
-                self::deleteHandler();
                 break;
             default:
                 methodNotAvailable($reqMethod);
@@ -87,29 +80,26 @@ class EventsController extends Controller
     {
         // Adicionar evento à event queue
         try {
-            $this->eventsManager->addEventToQueue($this->REQ_BODY["event_name"]);
-            objectWrittenSuccessfullyResponse(["event_name" => $this->REQ_BODY["event_name"]]);
-        } catch (Exception $e) {
-            internalErrorResponse($e->getMessage());
-        }
-    }
-
-    private function deleteHandler()
-    {
-        // Remover um evento da event queue
-        try {
-            if (!isset($this->URL_PARAMS["eventName"])) {
-                throw new NoEventNameSpecifiedException();
+            //  Em função da action enviada no body, adicionar ou remover evento da event queue.
+            switch ($this->REQ_BODY["action"]) {
+                case EQ_ADD_ACTION:
+                    $this->eventsManager->addEventToQueue($this->REQ_BODY["event_name"]);
+                    break;
+                case EQ_REMOVE_ACTION:
+                    $this->eventsManager->removeEventFromQueue($this->REQ_BODY["event_name"]);
+                    break;
+                default:
+                    throw new InvalidEventQueueActionException($this->REQ_BODY["event_name"]);
             }
 
-            $this->eventsManager->removeEventFromQueue($this->URL_PARAMS["eventName"]);
-            objectDeletedSuccessfullyResponse(["event_name" => $this->URL_PARAMS["eventName"]]);
-        } catch (NoEventNameSpecifiedException $e) {
+            objectWrittenSuccessfullyResponse(["event_name" => $this->REQ_BODY["event_name"]]);
+        } catch (InvalidEventQueueActionException $e) {
             unprocessableEntityResponse($e->getMessage());
         } catch (Exception $e) {
             internalErrorResponse($e->getMessage());
         }
     }
+
 
 
 }

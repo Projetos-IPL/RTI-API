@@ -23,3 +23,7 @@ defined('DB_USER') or define('DB_USER', 'afonekvf_rti');
 defined('DB_PASSWORD') or define('DB_PASSWORD', 'Projeto_22');
 defined('DB_CHARSET') or define('DB_CHARSET', 'utf8mb4');
 
+// Event Queue
+defined('EQ_ADD_ACTION') or define('EQ_ADD_ACTION', 'ADD');
+defined('EQ_REMOVE_ACTION') or define('EQ_REMOVE_ACTION', 'REMOVE');
+
