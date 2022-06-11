@@ -21,9 +21,7 @@ function emitDataStateUpdateEvent(string $dataEntity) : void
 
     curl_setopt($curl, CURLOPT_HTTPHEADER, $headers);
 
-    $resp = curl_exec($curl);
+    curl_exec($curl);
     curl_close($curl);
-
-    echo $resp;
 }
 
