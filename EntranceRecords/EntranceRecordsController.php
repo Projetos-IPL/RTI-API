@@ -3,11 +3,11 @@
 include_once $_SERVER['DOCUMENT_ROOT'] . '/utils/constants.php';
 include_once $_SERVER['DOCUMENT_ROOT'] . '/utils/commonResponses.php';
 include_once $_SERVER['DOCUMENT_ROOT'] . '/utils/requestConfig.php';
-
 include_once $_SERVER['DOCUMENT_ROOT'] . '/utils/Controller/Controller.php';
 include_once $_SERVER['DOCUMENT_ROOT'] . '/EntranceRecords/EntranceRecordsManager.php';
-
 include_once $_SERVER['DOCUMENT_ROOT'] . '/People/exceptions/PersonNotFoundException.php';
+include_once $_SERVER['DOCUMENT_ROOT'] . '/utils/emitDataStateUpdateEvent.php';
+
 
 class EntranceRecordsController extends Controller
 {
@@ -84,6 +84,7 @@ class EntranceRecordsController extends Controller
         try {
             $this->entranceRecordsManager->createEntranceRecord($this->REQ_BODY['rfid']);
             objectWrittenSuccessfullyResponse($this->entranceRecordsManager->getEntranceRecordsFiltered(array("rfid" => $this->REQ_BODY['rfid'], "latest" => 1)));
+            emitDataStateUpdateEvent(ET_ENTRANCE_LOGS);
         } catch (Exception $e) {
             internalErrorResponse($e->getMessage());
         }

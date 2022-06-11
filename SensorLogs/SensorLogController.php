@@ -4,6 +4,7 @@ include_once $_SERVER['DOCUMENT_ROOT'] . '/utils/requestConfig.php';
 include_once $_SERVER['DOCUMENT_ROOT'] . '/utils/commonResponses.php';
 include_once $_SERVER['DOCUMENT_ROOT'] . '/utils/Controller/Controller.php';
 include_once $_SERVER['DOCUMENT_ROOT'] . '/utils/constants.php';
+include_once $_SERVER['DOCUMENT_ROOT'] . '/utils/emitDataStateUpdateEvent.php';
 
 include_once $_SERVER['DOCUMENT_ROOT'] . '/SensorLogs/SensorLogManager.php';
 include_once $_SERVER['DOCUMENT_ROOT'] . '/SensorLogs/SensorLogUtils.php';
@@ -87,6 +88,7 @@ class SensorLogController extends Controller
                 'value' => $this->REQ_BODY['value']);
             $this->sensorLogManager->addSensorLog($log);
             objectWrittenSuccessfullyResponse($log);
+            emitDataStateUpdateEvent(ET_SENSOR_LOG);
         } catch (InvalidSensorTypeException $e) {
             unprocessableEntityResponse($e->getMessage());
         } catch (DataSchemaException|Exception $e) {

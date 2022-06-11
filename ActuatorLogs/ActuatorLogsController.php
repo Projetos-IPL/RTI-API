@@ -6,6 +6,7 @@ include_once $_SERVER['DOCUMENT_ROOT'] . '/utils/constants.php';
 
 include_once $_SERVER['DOCUMENT_ROOT'] . '/utils/Controller/Controller.php';
 include_once $_SERVER['DOCUMENT_ROOT'] . '/ActuatorLogs/ActuatorLogsManager.php';
+include_once $_SERVER['DOCUMENT_ROOT'] . '/utils/emitDataStateUpdateEvent.php';
 
 class ActuatorLogsController extends Controller
 {
@@ -84,6 +85,7 @@ class ActuatorLogsController extends Controller
             );
             $this->actuatorLogsManager->addActuatorLog($log);
             objectWrittenSuccessfullyResponse($log);
+            emitDataStateUpdateEvent(ET_ACTUATOR_LOG);
         } catch (DataSchemaException|Exception $e) {
             internalErrorResponse($e->getMessage());
         }

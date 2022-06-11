@@ -98,6 +98,7 @@ class PermissionsController extends Controller
         try {
             $this->permissionsManager->addPermission($this->REQ_BODY['rfid']);
             objectWrittenSuccessfullyResponse($this->REQ_BODY);
+            emitDataStateUpdateEvent(ET_PERMISSIONS);
         } catch (DuplicatePermissionException $e) {
             unprocessableEntityResponse($e->getMessage());
         } catch (Exception $e) {
@@ -111,6 +112,7 @@ class PermissionsController extends Controller
         try {
             $this->permissionsManager->deletePermission($this->REQ_BODY['rfid']);
             objectDeletedSuccessfullyResponse($this->REQ_BODY);
+            emitDataStateUpdateEvent(ET_PERMISSIONS);
         } catch (PermissionNotFoundException $e) {
             unprocessableEntityResponse($e->getMessage());
         } catch (Exception $e) {

@@ -3,6 +3,7 @@
 include_once $_SERVER['DOCUMENT_ROOT'] . '/EntranceRecordsImages/EntranceRecordsImagesManager.php';
 include_once $_SERVER['DOCUMENT_ROOT'] . '/utils/Controller/Controller.php';
 include_once $_SERVER['DOCUMENT_ROOT'] . '/utils/commonResponses.php';
+include_once $_SERVER['DOCUMENT_ROOT'] . '/utils/emitDataStateUpdateEvent.php';
 
 
 class EntranceRecordsImagesController extends Controller
@@ -74,6 +75,7 @@ class EntranceRecordsImagesController extends Controller
         try {
             $this->entranceRecordsImagesManager->addEntranceRecordImage($this->REQ_BODY);
             objectWrittenSuccessfullyResponse($this->REQ_BODY);
+            emitDataStateUpdateEvent(ET_ENTRANCE_LOG_IMAGES);
         } catch (PersonNotFoundException $e) {
             unprocessableEntityResponse($e->getMessage());
         } catch (Exception $e) {

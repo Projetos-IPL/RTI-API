@@ -107,6 +107,7 @@ class PeopleController extends Controller
         try {
             $this->peopleManager->addPerson($this->REQ_BODY);
             objectWrittenSuccessfullyResponse($this->REQ_BODY);
+            emitDataStateUpdateEvent(ET_PEOPLE);
         } catch (DuplicateRFIDException $e) {
             unprocessableEntityResponse($e->getMessage());
         } catch (DataSchemaException|Exception $e) {
@@ -120,6 +121,9 @@ class PeopleController extends Controller
         try {
             $this->peopleManager->updatePersonRFID($this->REQ_BODY['rfid'], $this->REQ_BODY['newRfid']);
             objectWrittenSuccessfullyResponse(array("rfid" => $this->REQ_BODY['newRfid']));
+            emitDataStateUpdateEvent(ET_PEOPLE);
+            emitDataStateUpdateEvent(ET_PERMISSIONS);
+            emitDataStateUpdateEvent(ET_ENTRANCE_LOGS);
         } catch (DuplicateRFIDException $e) {
             unprocessableEntityResponse($e->getMessage());
         } catch (Exception $e) {
@@ -133,6 +137,9 @@ class PeopleController extends Controller
         try {
             $this->peopleManager->deletePerson($this->REQ_BODY['rfid']);
             objectDeletedSuccessfullyResponse(array("rfid" => $this->REQ_BODY));
+            emitDataStateUpdateEvent(ET_PEOPLE);
+            emitDataStateUpdateEvent(ET_PERMISSIONS);
+            emitDataStateUpdateEvent(ET_ENTRANCE_LOG_IMAGES);
         } catch (PersonNotFoundException $e) {
             unprocessableEntityResponse($e->getMessage());
         } catch (Exception $e) {
