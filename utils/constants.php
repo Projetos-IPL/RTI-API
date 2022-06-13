@@ -34,5 +34,6 @@ defined('ET_PEOPLE') or define('ET_PEOPLE', 'PEOPLE');
 defined('ET_PERMISSIONS') or define('ET_PERMISSIONS', 'PERMISSIONS');
 defined('ET_ENTRANCE_LOGS') or define('ET_ENTRANCE_LOGS', 'ENTRANCE_LOGS');
 defined('ET_ENTRANCE_LOG_IMAGES') or define('ET_ENTRANCE_LOG_IMAGES', 'ENTRANCE_LOG_IMAGES');
+defined('ET_EVENTS') or define('ET_EVENTS', 'EVENTS');
 
 

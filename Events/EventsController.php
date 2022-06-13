@@ -6,6 +6,7 @@ include_once $_SERVER['DOCUMENT_ROOT'] . '/utils/constants.php';
 
 include_once $_SERVER['DOCUMENT_ROOT'] . '/utils/Controller/Controller.php';
 include_once $_SERVER['DOCUMENT_ROOT'] . '/Events/EventsManager.php';
+include_once $_SERVER['DOCUMENT_ROOT'] . '/utils/emitDataStateUpdateEvent.php';
 
 class EventsController extends Controller
 {
@@ -84,6 +85,7 @@ class EventsController extends Controller
             switch ($this->REQ_BODY["action"]) {
                 case EQ_ADD_ACTION:
                     $this->eventsManager->addEventToQueue($this->REQ_BODY["event_name"]);
+                    emitDataStateUpdateEvent(ET_EVENTS);
                     break;
                 case EQ_REMOVE_ACTION:
                     $this->eventsManager->removeEventFromQueue($this->REQ_BODY["event_name"]);
